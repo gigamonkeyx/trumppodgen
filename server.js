@@ -399,10 +399,10 @@ app.get('/api/workflow/:id', (req, res) => {
   }
 });
 
-// API: Generate script
+// API: Generate script with batch processing
 app.post('/api/generate-script', async (req, res) => {
   try {
-    const { workflowId, model, style = 'professional', duration = 10 } = req.body;
+    const { workflowId, model, style = 'professional', duration = 10, batchSize = 10 } = req.body;
 
     if (!workflowId || !model) {
       return res.status(400).json({ error: 'workflowId and model are required' });
@@ -422,15 +422,54 @@ app.post('/api/generate-script', async (req, res) => {
       return res.status(400).json({ error: 'No speeches found for this workflow' });
     }
 
-    // Create content summary for AI
-    const contentSummary = speeches.map(speech => ({
-      title: speech.title,
-      date: speech.date,
-      location: speech.rally_location,
-      excerpt: speech.transcript ? speech.transcript.substring(0, 500) + '...' : 'No transcript available'
-    }));
+    // Handle large batches (10+ speeches) with intelligent processing
+    let script;
+    if (speeches.length > batchSize) {
+      console.log(`Processing large batch: ${speeches.length} speeches, using batch processing`);
+      script = await generateBatchScript(speeches, model, style, duration, batchSize);
+    } else {
+      script = await generateSingleScript(speeches, model, style, duration);
+    }
 
-    const prompt = `Create a ${duration}-minute podcast script in a ${style} style based on these Trump speeches:
+    // Update workflow with script
+    db.prepare('UPDATE workflows SET script = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
+      .run(script, 'script_generated', workflowId);
+
+    // Track analytics
+    analytics.trackEvent('script_generated', {
+      workflowId,
+      model,
+      style,
+      duration,
+      speechCount: speeches.length,
+      batchProcessed: speeches.length > batchSize
+    }, req);
+
+    res.json({
+      workflowId,
+      script,
+      status: 'script_generated',
+      message: `Script generated successfully (${speeches.length} speeches processed)`,
+      batchProcessed: speeches.length > batchSize
+    });
+
+  } catch (error) {
+    console.error('Script generation error:', error);
+    analytics.trackError(error, req, '/api/generate-script');
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Helper function for single script generation
+async function generateSingleScript(speeches, model, style, duration) {
+  const contentSummary = speeches.map(speech => ({
+    title: speech.title,
+    date: speech.date,
+    location: speech.rally_location,
+    excerpt: speech.transcript ? speech.transcript.substring(0, 500) + '...' : 'No transcript available'
+  }));
+
+  const prompt = `Create a ${duration}-minute podcast script in a ${style} style based on these Trump speeches:
 
 ${contentSummary.map((speech, i) => `
 Speech ${i + 1}: ${speech.title}
@@ -449,32 +488,80 @@ Requirements:
 
 Format the response as a structured script with speaker cues and timing notes.`;
 
-    const script = await callOpenRouter(prompt, model);
+  return await callOpenRouter(prompt, model);
+}
 
-    // Update workflow with script
-    db.prepare('UPDATE workflows SET script = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-      .run(script, 'script_generated', workflowId);
-
-    // Track analytics
-    analytics.trackEvent('script_generated', {
-      workflowId,
-      model,
-      style,
-      duration
-    }, req);
-
-    res.json({
-      workflowId,
-      script,
-      status: 'script_generated',
-      message: 'Script generated successfully'
-    });
-
-  } catch (error) {
-    console.error('Script generation error:', error);
-    res.status(500).json({ error: error.message });
+// Helper function for batch script generation
+async function generateBatchScript(speeches, model, style, duration, batchSize) {
+  // Group speeches into batches
+  const batches = [];
+  for (let i = 0; i < speeches.length; i += batchSize) {
+    batches.push(speeches.slice(i, i + batchSize));
   }
-});
+
+  console.log(`Processing ${batches.length} batches of speeches`);
+
+  // Generate summaries for each batch
+  const batchSummaries = [];
+  for (let i = 0; i < batches.length; i++) {
+    const batch = batches[i];
+    const batchPrompt = `Analyze and summarize the key themes, quotes, and topics from these Trump speeches:
+
+${batch.map((speech, j) => `
+Speech ${j + 1}: ${speech.title}
+Date: ${speech.date}
+Location: ${speech.rally_location || 'Unknown'}
+Excerpt: ${speech.transcript ? speech.transcript.substring(0, 300) + '...' : 'No transcript available'}
+`).join('\n')}
+
+Provide a concise summary focusing on:
+- Main themes and topics discussed
+- Most impactful quotes
+- Key policy points or announcements
+- Audience reactions or notable moments
+
+Keep summary under 200 words.`;
+
+    try {
+      const summary = await callOpenRouter(batchPrompt, model);
+      batchSummaries.push({
+        batchNumber: i + 1,
+        speechCount: batch.length,
+        dateRange: `${batch[batch.length - 1].date} to ${batch[0].date}`,
+        summary: summary
+      });
+    } catch (error) {
+      console.error(`Batch ${i + 1} processing failed:`, error.message);
+      batchSummaries.push({
+        batchNumber: i + 1,
+        speechCount: batch.length,
+        dateRange: `${batch[batch.length - 1].date} to ${batch[0].date}`,
+        summary: `Batch processing failed: ${batch.map(s => s.title).join(', ')}`
+      });
+    }
+  }
+
+  // Generate final script from batch summaries
+  const finalPrompt = `Create a comprehensive ${duration}-minute podcast script in a ${style} style based on these speech batch summaries:
+
+${batchSummaries.map(batch => `
+Batch ${batch.batchNumber} (${batch.speechCount} speeches, ${batch.dateRange}):
+${batch.summary}
+`).join('\n')}
+
+Requirements:
+- Create an engaging ${duration}-minute podcast episode covering all batches
+- Include an introduction explaining the scope (${speeches.length} speeches total)
+- Weave together themes from different time periods
+- Highlight evolution of key topics over time
+- Include conclusion summarizing overall patterns
+- Structure for audio with clear transitions between batch content
+- Include timestamps for major sections
+
+Format as a structured script with speaker cues and timing notes.`;
+
+  return await callOpenRouter(finalPrompt, model);
+}
 
 // API: Generate audio (enhanced TTS)
 app.post('/api/generate-audio', async (req, res) => {

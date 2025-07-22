@@ -87,35 +87,109 @@ class DataSourceManager {
 class CSpanSource {
   constructor() {
     this.baseUrl = 'https://www.c-span.org';
-    this.apiUrl = 'https://www.c-span.org/api';
+    this.apiUrl = 'https://api.c-span.org/v1';
+    this.trumpPersonId = '20967'; // C-SPAN person ID for Donald Trump
   }
 
   async verify() {
     try {
-      const response = await axios.get(`${this.baseUrl}/person/donald-trump`, { timeout: 5000 });
-      return { available: true, status: response.status };
-    } catch (error) {
-      return { available: false, error: error.message };
+      // Try API first, fallback to scraping
+      const response = await axios.get(`${this.apiUrl}/videos`, {
+        params: { personId: this.trumpPersonId, limit: 1 },
+        timeout: 5000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+      });
+      return { available: true, status: response.status, method: 'api' };
+    } catch (apiError) {
+      // Fallback to scraping verification
+      try {
+        const response = await axios.get(`${this.baseUrl}/person/donald-trump`, {
+          timeout: 5000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+          }
+        });
+        return { available: true, status: response.status, method: 'scraping' };
+      } catch (scrapeError) {
+        return { available: false, error: scrapeError.message };
+      }
     }
   }
 
   async fetch(options = {}) {
-    // C-SPAN doesn't have a public API, so we'll scrape their Trump page
+    const limit = options.limit || 50;
+
+    // Try API first
     try {
-      const response = await axios.get(`${this.baseUrl}/person/donald-trump`, { timeout: 10000 });
+      return await this.fetchFromAPI(limit);
+    } catch (apiError) {
+      console.log('C-SPAN API failed, falling back to scraping:', apiError.message);
+      return await this.fetchFromScraping(limit);
+    }
+  }
+
+  async fetchFromAPI(limit = 50) {
+    try {
+      const response = await axios.get(`${this.apiUrl}/videos`, {
+        params: {
+          personId: this.trumpPersonId,
+          limit: limit,
+          sort: 'date_desc'
+        },
+        timeout: 15000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+      });
+
+      const items = [];
+      if (response.data && response.data.videos) {
+        for (const video of response.data.videos) {
+          items.push({
+            id: `cspan_${video.id}`,
+            title: video.title || 'Untitled',
+            date: video.date ? new Date(video.date).toISOString().split('T')[0] : null,
+            video_url: `${this.baseUrl}/video/?${video.id}`,
+            transcript_url: video.transcript ? `${this.baseUrl}/video/?${video.id}#transcript` : null,
+            rally_location: this.extractLocation(video.title || ''),
+            duration: video.duration || null,
+            thumbnail_url: video.thumbnail || null
+          });
+        }
+      }
+
+      return items;
+    } catch (error) {
+      throw new Error(`C-SPAN API fetch failed: ${error.message}`);
+    }
+  }
+
+  async fetchFromScraping(limit = 20) {
+    try {
+      const response = await axios.get(`${this.baseUrl}/person/donald-trump`, {
+        timeout: 10000,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+      });
+
       const $ = cheerio.load(response.data);
       const items = [];
 
       // Look for video links and titles
-      $('.program-item, .video-item').each((i, element) => {
+      $('.program-item, .video-item, .result-item').each((i, element) => {
+        if (items.length >= limit) return false;
+
         const $el = $(element);
-        const title = $el.find('.program-title, .video-title').text().trim();
+        const title = $el.find('.program-title, .video-title, .result-title').text().trim();
         const link = $el.find('a').attr('href');
-        const date = $el.find('.date, .program-date').text().trim();
+        const date = $el.find('.date, .program-date, .result-date').text().trim();
 
         if (title && link && title.toLowerCase().includes('trump')) {
           items.push({
-            id: `cspan_${link.split('/').pop()}`,
+            id: `cspan_${link.split('/').pop() || Math.random().toString(36)}`,
             title: title,
             date: this.parseDate(date),
             video_url: link.startsWith('http') ? link : `${this.baseUrl}${link}`,
@@ -127,9 +201,9 @@ class CSpanSource {
         }
       });
 
-      return items.slice(0, 20); // Limit to 20 most recent
+      return items;
     } catch (error) {
-      throw new Error(`C-SPAN fetch failed: ${error.message}`);
+      throw new Error(`C-SPAN scraping failed: ${error.message}`);
     }
   }
 
@@ -190,40 +264,118 @@ class YouTubeSource {
         'Trump rally 2024',
         'Trump speech 2024',
         'Donald Trump rally',
-        'Trump campaign speech'
+        'Trump campaign speech',
+        'RSBN Trump rally',
+        'Right Side Broadcasting Trump',
+        'Trump rally live',
+        'Trump Pennsylvania rally',
+        'Trump Michigan rally',
+        'Trump Florida rally'
       ];
 
       const items = [];
-      for (const query of queries) {
-        const response = await axios.get(`${this.baseUrl}/search`, {
-          params: {
-            part: 'snippet',
-            q: query,
-            key: this.apiKey,
-            maxResults: 10,
-            type: 'video',
-            order: 'date'
-          },
-          timeout: 10000
-        });
+      const seenVideoIds = new Set();
 
-        for (const video of response.data.items) {
-          items.push({
-            id: `youtube_${video.id.videoId}`,
-            title: video.snippet.title,
-            date: video.snippet.publishedAt.split('T')[0],
-            video_url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
-            transcript_url: null,
-            rally_location: this.extractLocation(video.snippet.title),
-            duration: null,
-            thumbnail_url: video.snippet.thumbnails.medium?.url
+      for (const query of queries) {
+        try {
+          const response = await axios.get(`${this.baseUrl}/search`, {
+            params: {
+              part: 'snippet',
+              q: query,
+              key: this.apiKey,
+              maxResults: 15,
+              type: 'video',
+              order: 'date',
+              publishedAfter: '2020-01-01T00:00:00Z' // Focus on recent content
+            },
+            timeout: 10000
           });
+
+          for (const video of response.data.items) {
+            // Avoid duplicates
+            if (seenVideoIds.has(video.id.videoId)) continue;
+            seenVideoIds.add(video.id.videoId);
+
+            // Filter for Trump-related content
+            const title = video.snippet.title.toLowerCase();
+            if (title.includes('trump') &&
+                (title.includes('rally') || title.includes('speech') ||
+                 title.includes('campaign') || title.includes('remarks'))) {
+
+              // Get additional video details
+              const videoDetails = await this.getVideoDetails(video.id.videoId);
+
+              items.push({
+                id: `youtube_${video.id.videoId}`,
+                title: video.snippet.title,
+                date: video.snippet.publishedAt.split('T')[0],
+                video_url: `https://www.youtube.com/watch?v=${video.id.videoId}`,
+                transcript_url: null, // Could be enhanced with YouTube transcript API
+                rally_location: this.extractLocation(video.snippet.title),
+                duration: videoDetails.duration,
+                thumbnail_url: video.snippet.thumbnails.medium?.url,
+                channel: video.snippet.channelTitle,
+                description: video.snippet.description?.substring(0, 500)
+              });
+            }
+          }
+        } catch (queryError) {
+          console.warn(`YouTube query failed for "${query}":`, queryError.message);
+          continue; // Continue with other queries
         }
       }
 
-      return items;
+      // Sort by date (newest first) and limit results
+      return items
+        .sort((a, b) => new Date(b.date) - new Date(a.date))
+        .slice(0, options.limit || 50);
+
     } catch (error) {
       throw new Error(`YouTube fetch failed: ${error.message}`);
+    }
+  }
+
+  async getVideoDetails(videoId) {
+    try {
+      const response = await axios.get(`${this.baseUrl}/videos`, {
+        params: {
+          part: 'contentDetails,statistics',
+          id: videoId,
+          key: this.apiKey
+        },
+        timeout: 5000
+      });
+
+      if (response.data.items && response.data.items.length > 0) {
+        const video = response.data.items[0];
+        return {
+          duration: this.parseDuration(video.contentDetails.duration),
+          viewCount: video.statistics.viewCount,
+          likeCount: video.statistics.likeCount
+        };
+      }
+    } catch (error) {
+      console.warn(`Failed to get video details for ${videoId}:`, error.message);
+    }
+
+    return { duration: null, viewCount: null, likeCount: null };
+  }
+
+  parseDuration(isoDuration) {
+    // Parse ISO 8601 duration (PT4M13S -> 4:13)
+    if (!isoDuration) return null;
+
+    const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+    if (!match) return null;
+
+    const hours = parseInt(match[1] || 0);
+    const minutes = parseInt(match[2] || 0);
+    const seconds = parseInt(match[3] || 0);
+
+    if (hours > 0) {
+      return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    } else {
+      return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
   }
 

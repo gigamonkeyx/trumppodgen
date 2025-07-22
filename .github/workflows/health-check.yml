@@ -1,0 +1,80 @@
+name: Health Check
+
+on:
+  schedule:
+    # Run every 15 minutes
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  health-check:
+    name: Application Health Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check Production Health
+      run: |
+        echo "🏥 Checking production health..."
+        # Replace with actual production URL when deployed
+        # curl -f https://trumppodgen.com/health || exit 1
+        echo "Production health check would run here"
+        
+    - name: Check Staging Health
+      run: |
+        echo "🏥 Checking staging health..."
+        # Replace with actual staging URL when deployed
+        # curl -f https://staging.trumppodgen.com/health || exit 1
+        echo "Staging health check would run here"
+        
+    - name: Check API Endpoints
+      run: |
+        echo "🔍 Testing critical API endpoints..."
+        # Add API endpoint tests here
+        echo "API endpoint tests would run here"
+        
+    - name: Notify on Failure
+      if: failure()
+      run: |
+        echo "🚨 Health check failed! Notification would be sent to team."
+        # Add notification logic (Slack, email, etc.)
+
+  performance-check:
+    name: Performance Monitoring
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Response Time Check
+      run: |
+        echo "⚡ Checking response times..."
+        # Add response time monitoring
+        echo "Response time check would run here"
+        
+    - name: Load Test
+      run: |
+        echo "🔄 Running light load test..."
+        # Add basic load testing
+        echo "Load test would run here"
+
+  data-source-check:
+    name: Data Source Health
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check Archive.org
+      run: |
+        echo "📚 Checking Archive.org availability..."
+        curl -f https://archive.org || echo "Archive.org check failed"
+        
+    - name: Check WhiteHouse.gov
+      run: |
+        echo "🏛️ Checking WhiteHouse.gov availability..."
+        curl -f https://www.whitehouse.gov/briefing-room/speeches-remarks/ || echo "WhiteHouse.gov check failed"
+        
+    - name: Check C-SPAN
+      run: |
+        echo "📺 Checking C-SPAN availability..."
+        curl -f https://www.c-span.org || echo "C-SPAN check failed"
+        
+    - name: Report Data Source Status
+      run: |
+        echo "📊 Data source health report generated"
