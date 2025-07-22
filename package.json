@@ -17,7 +17,9 @@
     "deploy": "./scripts/deploy.sh",
     "health": "curl -f http://localhost:3000/health",
     "prestart": "echo \"Starting Trump Podcast Generator...\"",
-    "postinstall": "echo \"Dependencies installed successfully\""
+    "postinstall": "echo \"Dependencies installed successfully\"",
+    "tunnel": "node scripts/ngrok-tunnel.js",
+    "share": "npm run tunnel"
   },
   "keywords": [
     "podcast",
@@ -54,7 +56,8 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "ngrok": "^5.0.0-beta.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.0",

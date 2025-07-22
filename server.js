@@ -10,6 +10,7 @@ const fs = require('fs').promises;
 const { DataSourceManager } = require('./src/dataSources');
 const { Analytics } = require('./src/analytics');
 const { AuthManager } = require('./src/auth');
+const NgrokTunnel = require('./scripts/ngrok-tunnel');
 
 const app = express();
 const port = 3000;
@@ -245,30 +246,53 @@ app.post('/api/profile/api-keys', auth.requireAuth.bind(auth), async (req, res) 
   }
 });
 
-// API: Donation/Support endpoints
+// API: Donation/Support endpoints with A/B testing
 app.get('/api/donate', async (req, res) => {
   try {
+    const { variant = 'default' } = req.query;
+
+    // A/B test variants for donation messaging
+    const variants = {
+      default: {
+        message: "Support Trump Podcast Generator Development",
+        description: "Help us maintain and improve this local podcast generation tool"
+      },
+      urgent: {
+        message: "Keep Trump Podcast Generator Free & Independent",
+        description: "Your support ensures we stay ad-free and maintain local-first privacy"
+      },
+      feature: {
+        message: "Unlock Premium Features & Support Development",
+        description: "Get unlimited batch processing, custom voices, and priority support"
+      }
+    };
+
+    const selectedVariant = variants[variant] || variants.default;
+
     const donationInfo = {
-      message: "Support Trump Podcast Generator Development",
-      description: "Help us maintain and improve this local podcast generation tool",
+      ...selectedVariant,
+      variant: variant,
       options: [
         {
           platform: "Patreon",
           url: process.env.PATREON_URL || "https://patreon.com/trumppodgen",
           description: "Monthly support for ongoing development",
-          suggested_amounts: ["$5", "$10", "$25"]
+          suggested_amounts: ["$5", "$10", "$25"],
+          active: true
         },
         {
           platform: "Ko-fi",
           url: process.env.KOFI_URL || "https://ko-fi.com/trumppodgen",
           description: "One-time support",
-          suggested_amounts: ["$3", "$5", "$10"]
+          suggested_amounts: ["$3", "$5", "$10"],
+          active: true
         },
         {
           platform: "GitHub Sponsors",
           url: process.env.GITHUB_SPONSORS_URL || "https://github.com/sponsors/gigamonkeyx",
           description: "Support open source development",
-          suggested_amounts: ["$5", "$15", "$50"]
+          suggested_amounts: ["$5", "$15", "$50"],
+          active: true
         }
       ],
       features: {
@@ -294,18 +318,109 @@ app.get('/api/donate', async (req, res) => {
 
 app.post('/api/donate/track', async (req, res) => {
   try {
-    const { platform, amount, userId } = req.body;
+    const { platform, amount, userId, variant = 'default', source = 'app' } = req.body;
 
-    // Track donation analytics (don't store sensitive payment info)
+    // Enhanced donation analytics with A/B testing
     analytics.trackEvent('donation_clicked', {
       platform,
       amount: amount || 'unknown',
+      userId: userId || 'anonymous',
+      variant,
+      source,
+      timestamp: new Date().toISOString(),
+      userAgent: req.headers['user-agent'] || 'unknown'
+    }, req);
+
+    // Track conversion funnel
+    analytics.trackEvent('conversion_funnel', {
+      step: 'donation_intent',
+      platform,
+      variant,
       userId: userId || 'anonymous'
     }, req);
 
     res.json({
       message: 'Thank you for your support!',
+      tracked: true,
+      variant,
+      nextStep: 'Please complete your donation on the platform'
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// API: Donation conversion completion (webhook-style)
+app.post('/api/donate/complete', async (req, res) => {
+  try {
+    const { platform, amount, userId, transactionId } = req.body;
+
+    // Track successful conversion (would be called by payment webhook in production)
+    analytics.trackEvent('donation_completed', {
+      platform,
+      amount,
+      userId: userId || 'anonymous',
+      transactionId,
+      timestamp: new Date().toISOString()
+    }, req);
+
+    analytics.trackEvent('conversion_funnel', {
+      step: 'donation_completed',
+      platform,
+      amount,
+      userId: userId || 'anonymous'
+    }, req);
+
+    res.json({
+      message: 'Donation completed successfully!',
       tracked: true
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// API: Get donation analytics (admin only)
+app.get('/api/donate/analytics', auth.requireAuth.bind(auth), auth.requireAdmin.bind(auth), async (req, res) => {
+  try {
+    const { days = 30 } = req.query;
+
+    // Get donation analytics from the last N days
+    const donationStats = db.prepare(`
+      SELECT
+        json_extract(data, '$.platform') as platform,
+        json_extract(data, '$.variant') as variant,
+        COUNT(*) as clicks,
+        COUNT(CASE WHEN event_type = 'donation_completed' THEN 1 END) as conversions
+      FROM analytics
+      WHERE event_type IN ('donation_clicked', 'donation_completed')
+        AND created_at > datetime('now', '-${days} days')
+      GROUP BY platform, variant
+    `).all();
+
+    const totalClicks = db.prepare(`
+      SELECT COUNT(*) as total
+      FROM analytics
+      WHERE event_type = 'donation_clicked'
+        AND created_at > datetime('now', '-${days} days')
+    `).get();
+
+    const totalConversions = db.prepare(`
+      SELECT COUNT(*) as total
+      FROM analytics
+      WHERE event_type = 'donation_completed'
+        AND created_at > datetime('now', '-${days} days')
+    `).get();
+
+    res.json({
+      period: `${days} days`,
+      summary: {
+        totalClicks: totalClicks.total,
+        totalConversions: totalConversions.total,
+        conversionRate: totalClicks.total > 0 ? (totalConversions.total / totalClicks.total * 100).toFixed(2) + '%' : '0%'
+      },
+      byPlatform: donationStats,
+      recommendations: generateDonationRecommendations(donationStats)
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -329,6 +444,84 @@ app.get('/api/supporter-status', auth.requireAuth.bind(auth), async (req, res) =
     };
 
     res.json(supporterStatus);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// API: Ngrok tunnel management
+app.get('/api/tunnel/status', auth.requireAuth.bind(auth), async (req, res) => {
+  try {
+    const tunnelInfo = await NgrokTunnel.getActiveTunnel();
+
+    if (tunnelInfo) {
+      res.json({
+        active: true,
+        url: tunnelInfo.url,
+        created: tunnelInfo.created,
+        expires: tunnelInfo.expires,
+        message: 'Tunnel is active and ready for sharing'
+      });
+    } else {
+      res.json({
+        active: false,
+        message: 'No active tunnel. Use "npm run tunnel" to create one.',
+        instructions: {
+          command: 'npm run tunnel',
+          description: 'Creates a secure public URL for local sharing'
+        }
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/tunnel/share', auth.requireAuth.bind(auth), async (req, res) => {
+  try {
+    const { platform = 'general', message } = req.body;
+    const tunnelInfo = await NgrokTunnel.getActiveTunnel();
+
+    if (!tunnelInfo) {
+      return res.status(400).json({
+        error: 'No active tunnel found',
+        suggestion: 'Run "npm run tunnel" first'
+      });
+    }
+
+    // Track sharing analytics
+    analytics.trackEvent('tunnel_shared', {
+      platform,
+      url: tunnelInfo.url,
+      userId: req.user.id,
+      customMessage: !!message
+    }, req);
+
+    const shareData = {
+      url: tunnelInfo.url,
+      title: 'Trump Podcast Generator - Live Demo',
+      description: message || 'AI-powered podcast generation from Trump speeches with voice cloning and swarm intelligence',
+      features: [
+        'AI Swarm Script Generation',
+        'Custom Voice Cloning',
+        'Local RSS Bundles',
+        'Batch Processing'
+      ],
+      instructions: {
+        login: 'Use admin / admin123 for full access',
+        demo: 'Try /api/search to see available speeches'
+      }
+    };
+
+    res.json({
+      message: 'Tunnel ready for sharing',
+      shareData,
+      platforms: {
+        twitter: `Check out this AI podcast generator: ${tunnelInfo.url}`,
+        discord: `🎙️ **Trump Podcast Generator** - Live Demo\n${tunnelInfo.url}\nLogin: admin / admin123`,
+        email: `Subject: Trump Podcast Generator Demo\n\nTry the live demo: ${tunnelInfo.url}\n\nFeatures: AI Swarm, Voice Cloning, Local RSS`
+      }
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -1360,6 +1553,58 @@ function generateRss(title, description, script, audioUrl) {
     </item>
   </channel>
 </rss>`;
+}
+
+// Helper function to generate donation optimization recommendations
+function generateDonationRecommendations(stats) {
+  const recommendations = [];
+
+  if (stats.length === 0) {
+    return ['No donation data available yet. Consider promoting donation options more prominently.'];
+  }
+
+  // Find best performing platform
+  const bestPlatform = stats.reduce((best, current) => {
+    const currentRate = current.conversions / current.clicks;
+    const bestRate = best.conversions / best.clicks;
+    return currentRate > bestRate ? current : best;
+  });
+
+  recommendations.push(`Best performing platform: ${bestPlatform.platform} with ${(bestPlatform.conversions / bestPlatform.clicks * 100).toFixed(1)}% conversion rate`);
+
+  // Find best performing variant
+  const variantStats = {};
+  stats.forEach(stat => {
+    if (!variantStats[stat.variant]) {
+      variantStats[stat.variant] = { clicks: 0, conversions: 0 };
+    }
+    variantStats[stat.variant].clicks += stat.clicks;
+    variantStats[stat.variant].conversions += stat.conversions;
+  });
+
+  const bestVariant = Object.entries(variantStats).reduce((best, [variant, data]) => {
+    const rate = data.conversions / data.clicks;
+    return rate > best.rate ? { variant, rate, data } : best;
+  }, { rate: 0 });
+
+  if (bestVariant.variant) {
+    recommendations.push(`Best performing message variant: ${bestVariant.variant} with ${(bestVariant.rate * 100).toFixed(1)}% conversion rate`);
+  }
+
+  // General recommendations
+  const totalClicks = stats.reduce((sum, stat) => sum + stat.clicks, 0);
+  const totalConversions = stats.reduce((sum, stat) => sum + stat.conversions, 0);
+  const overallRate = totalConversions / totalClicks;
+
+  if (overallRate < 0.02) {
+    recommendations.push('Consider testing more compelling donation messages or incentives');
+  }
+
+  if (overallRate > 0.05) {
+    recommendations.push('Excellent conversion rate! Consider increasing donation prompt visibility');
+  }
+
+  return recommendations;
 }
 
 // Start server immediately, populate archive in background

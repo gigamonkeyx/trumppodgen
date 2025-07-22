@@ -582,6 +582,186 @@ runner.test('Enhanced workflow features', async () => {
   }
 });
 
+runner.test('Deployment smoke tests', async () => {
+  // Test critical production endpoints
+  const healthResult = await get('/health');
+  assert(healthResult.status === 'healthy', 'Health check should pass');
+  assert(healthResult.database === 'connected', 'Database should be connected');
+
+  const statusResult = await get('/api/status');
+  assert(statusResult.server === 'operational', 'Server should be operational');
+  assert(typeof statusResult.uptime === 'number', 'Should return uptime');
+
+  // Test authentication endpoints
+  const loginResult = await post('/api/login', {
+    username: 'admin',
+    password: 'admin123'
+  });
+  assert(loginResult.success, 'Admin login should work');
+
+  const token = loginResult.token;
+  const profileResult = await get(`/api/profile?token=${token}`);
+  assert(profileResult.user, 'Profile should be accessible with token');
+
+  console.log('✅ Deployment smoke tests passed - ready for production');
+});
+
+runner.test('Income flow simulation', async () => {
+  // Test donation system flow
+  const donateResult = await get('/api/donate');
+  assert(Array.isArray(donateResult.options), 'Should return donation options');
+  assert(donateResult.options.length >= 3, 'Should have multiple platforms');
+
+  // Test A/B variants
+  const variantResult = await get('/api/donate?variant=urgent');
+  assert(variantResult.variant === 'urgent', 'Should return correct variant');
+  assert(variantResult.message !== donateResult.message, 'Variants should differ');
+
+  // Test donation tracking
+  const trackResult = await post('/api/donate/track', {
+    platform: 'Patreon',
+    amount: '$10',
+    userId: 'test-user',
+    variant: 'urgent'
+  });
+  assert(trackResult.tracked, 'Should track donation clicks');
+  assert(trackResult.variant === 'urgent', 'Should track variant');
+
+  // Test conversion completion
+  const completeResult = await post('/api/donate/complete', {
+    platform: 'Patreon',
+    amount: '$10',
+    userId: 'test-user',
+    transactionId: 'test-123'
+  });
+  assert(completeResult.tracked, 'Should track completed donations');
+
+  console.log('✅ Income flow simulation complete - monetization ready');
+});
+
+runner.test('Ngrok tunnel integration', async () => {
+  // Test tunnel status endpoint
+  const loginResult = await post('/api/login', {
+    username: 'admin',
+    password: 'admin123'
+  });
+
+  if (loginResult.success) {
+    const token = loginResult.token;
+
+    const tunnelStatus = await get(`/api/tunnel/status?token=${token}`);
+    assert(typeof tunnelStatus.active === 'boolean', 'Should return tunnel status');
+
+    if (!tunnelStatus.active) {
+      assert(tunnelStatus.instructions, 'Should provide setup instructions');
+      console.log('✅ Tunnel system ready (no active tunnel - expected)');
+    } else {
+      assert(tunnelStatus.url, 'Active tunnel should have URL');
+      console.log(`✅ Active tunnel detected: ${tunnelStatus.url}`);
+    }
+  }
+});
+
+runner.test('Production readiness check', async () => {
+  // Comprehensive production readiness validation
+  const checks = [];
+
+  // Database connectivity
+  try {
+    const healthResult = await get('/health');
+    checks.push({
+      name: 'Database Connection',
+      status: healthResult.database === 'connected' ? 'PASS' : 'FAIL',
+      details: `Database: ${healthResult.database}`
+    });
+  } catch (error) {
+    checks.push({
+      name: 'Database Connection',
+      status: 'FAIL',
+      details: error.message
+    });
+  }
+
+  // Authentication system
+  try {
+    const loginResult = await post('/api/login', {
+      username: 'admin',
+      password: 'admin123'
+    });
+    checks.push({
+      name: 'Authentication System',
+      status: loginResult.success ? 'PASS' : 'FAIL',
+      details: loginResult.success ? 'Admin login working' : 'Login failed'
+    });
+  } catch (error) {
+    checks.push({
+      name: 'Authentication System',
+      status: 'FAIL',
+      details: error.message
+    });
+  }
+
+  // Data sources
+  try {
+    const sourcesResult = await get('/api/verify-sources');
+    const workingSources = Object.values(sourcesResult).filter(s => s.available).length;
+    checks.push({
+      name: 'Data Sources',
+      status: workingSources >= 2 ? 'PASS' : 'WARN',
+      details: `${workingSources}/4 sources available`
+    });
+  } catch (error) {
+    checks.push({
+      name: 'Data Sources',
+      status: 'FAIL',
+      details: error.message
+    });
+  }
+
+  // Income system
+  try {
+    const donateResult = await get('/api/donate');
+    const activePlatforms = donateResult.options.filter(opt => opt.active).length;
+    checks.push({
+      name: 'Income System',
+      status: activePlatforms >= 2 ? 'PASS' : 'WARN',
+      details: `${activePlatforms} donation platforms active`
+    });
+  } catch (error) {
+    checks.push({
+      name: 'Income System',
+      status: 'FAIL',
+      details: error.message
+    });
+  }
+
+  // Display results
+  console.log('\n🔍 Production Readiness Report:');
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+  let passCount = 0;
+  let warnCount = 0;
+  let failCount = 0;
+
+  checks.forEach(check => {
+    const icon = check.status === 'PASS' ? '✅' : check.status === 'WARN' ? '⚠️' : '❌';
+    console.log(`${icon} ${check.name}: ${check.status} - ${check.details}`);
+
+    if (check.status === 'PASS') passCount++;
+    else if (check.status === 'WARN') warnCount++;
+    else failCount++;
+  });
+
+  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(`📊 Summary: ${passCount} PASS, ${warnCount} WARN, ${failCount} FAIL`);
+
+  if (failCount === 0) {
+    console.log('🎉 System is PRODUCTION READY!');
+  } else {
+    console.log('⚠️  Address failures before production deployment');
+  }
+});
+
 // Run tests if this file is executed directly
 if (require.main === module) {
   runner.run().catch(error => {

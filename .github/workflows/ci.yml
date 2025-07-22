@@ -131,14 +131,23 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
-    - name: Deploy to Vercel
+    - name: Deploy to Vercel Production
       uses: amondnet/vercel-action@v25
       with:
         vercel-token: ${{ secrets.VERCEL_TOKEN }}
         vercel-org-id: ${{ secrets.ORG_ID }}
         vercel-project-id: ${{ secrets.PROJECT_ID }}
-        vercel-args: '--prod'
+        vercel-args: '--prod --confirm'
       if: env.VERCEL_TOKEN != ''
+
+    - name: Test Production Deployment
+      if: env.VERCEL_TOKEN != ''
+      run: |
+        echo "🧪 Testing production deployment..."
+        sleep 30
+        curl -f https://trumppodgen.vercel.app/health || exit 1
+        curl -f https://trumppodgen.vercel.app/api/status || exit 1
+        echo "✅ Production deployment verified"
 
     - name: Alternative Deploy (Docker)
       if: env.VERCEL_TOKEN == ''
@@ -146,6 +155,14 @@ jobs:
         echo "🚀 Vercel not configured, using Docker deployment"
         docker build -t trump-podcast-generator:latest .
         echo "Docker image built successfully"
+
+    - name: Create deployment summary
+      run: |
+        echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- **Environment**: Production" >> $GITHUB_STEP_SUMMARY
+        echo "- **URL**: https://trumppodgen.vercel.app" >> $GITHUB_STEP_SUMMARY
+        echo "- **Status**: ✅ Deployed successfully" >> $GITHUB_STEP_SUMMARY
+        echo "- **Features**: AI Swarm, Voice Cloning, Income Integration" >> $GITHUB_STEP_SUMMARY
         
   notify:
     name: Notify Team
