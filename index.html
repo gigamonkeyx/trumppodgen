@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trump Podcast Generator - Professional Edition</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <style>
+        :root {
+            --primary-color: #1a365d;
+            --secondary-color: #3182ce;
+            --accent-color: #ed8936;
+            --background-color: #f7fafc;
+            --container-bg: #ffffff;
+            --font-color: #2d3748;
+            --border-color: #e2e8f0;
+            --error-color: #e53e3e;
+            --success-color: #38a169;
+            --warning-color: #d69e2e;
+            --info-color: #3182ce;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--font-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background-color: var(--container-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+        }
+
+        .status-indicator.warning { background: var(--warning-color); }
+        .status-indicator.error { background: var(--error-color); }
+
+        .main-content {
+            padding: 2rem;
+        }
+
+        .search-section {
+            background: var(--container-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group label {
+            font-weight: 600;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        .form-group input {
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #2c5aa0 100%);
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: var(--shadow);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px -2px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, #2c5aa0 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color) 0%, #2f855a 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color) 0%, #b7791f 100%);
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            background: var(--container-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-header h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+        }
+
+        .results-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .results-table th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 1rem 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .results-table td {
+            padding: 1rem 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+
+        .results-table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .speech-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .speech-meta {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .source-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .source-archive { background: #e6f3ff; color: #0066cc; }
+        .source-cspan { background: #fff2e6; color: #cc6600; }
+        .source-youtube { background: #ffe6e6; color: #cc0000; }
+        .source-whitehouse { background: #e6ffe6; color: #006600; }
+
+        .action-buttons-cell {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--secondary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        footer p {
+            margin-bottom: 0.5rem;
+        }
+        
+        footer a {
+            color: var(--secondary-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        #loader {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        #error-message {
+            color: var(--error-color);
+            background-color: #fdd;
+            border: 1px solid var(--error-color);
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Trump Podcast Generator</h1>
+            <p>Professional AI-powered podcast creation from archived speeches and rallies</p>
+
+            <div class="status-bar" id="status-bar">
+                <div class="status-item">
+                    <div class="status-indicator" id="db-status"></div>
+                    <span>Database</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator warning" id="sources-status"></div>
+                    <span>Data Sources</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator" id="ai-status"></div>
+                    <span>AI Models</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="search-section">
+                <h2>Search Archive</h2>
+                <form id="search-form" class="search-form">
+                    <div class="form-group">
+                        <label for="keywords">Keywords</label>
+                        <input type="text" id="keywords" name="keywords" placeholder="Enter search terms...">
+                    </div>
+                    <div class="form-group">
+                        <label for="start-date">Start Date</label>
+                        <input type="date" id="start-date" name="start-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="end-date">End Date</label>
+                        <input type="date" id="end-date" name="end-date">
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </form>
+
+                <div class="action-buttons">
+                    <button id="verify-sources" class="btn btn-warning btn-small">Verify Sources</button>
+                    <button id="refresh-archive" class="btn btn-success btn-small">Refresh Archive</button>
+                    <button id="refresh-models" class="btn btn-primary btn-small">Refresh Models</button>
+                </div>
+            </div>
+            <div class="results-section">
+                <div class="results-header">
+                    <h2>Speech Archive</h2>
+                    <div class="results-stats">
+                        <span id="total-count">Loading...</span>
+                        <span id="selected-count">0 selected</span>
+                    </div>
+                </div>
+
+                <div id="loading-indicator" class="empty-state" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p>Loading speeches...</p>
+                </div>
+
+                <table id="results-table" class="results-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 50px;">Select</th>
+                            <th>Speech Details</th>
+                            <th style="width: 120px;">Date</th>
+                            <th style="width: 100px;">Source</th>
+                            <th style="width: 150px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="results-body"></tbody>
+                </table>
+
+                <div id="empty-state" class="empty-state" style="display: none;">
+                    <h3>No speeches found</h3>
+                    <p>Try adjusting your search criteria or refresh the archive.</p>
+                </div>
+            </div>
+
+            <div class="workflow-section" style="display: none;" id="workflow-section">
+                <div class="results-section">
+                    <div class="results-header">
+                        <h2>Podcast Workflow</h2>
+                        <div class="action-buttons">
+                            <select id="model-dropdown" style="padding: 0.5rem; border-radius: 4px; border: 2px solid var(--border-color);">
+                                <option value="">Select AI Model...</option>
+                            </select>
+                            <button id="generate-script" class="btn btn-success btn-small">Generate Script</button>
+                            <button id="generate-audio" class="btn btn-warning btn-small">Generate Audio</button>
+                            <button id="finalize" class="btn btn-primary btn-small">Finalize Podcast</button>
+                        </div>
+                    </div>
+                    <div id="workflow-items"></div>
+                </div>
+            </div>
+        </div>
+        <footer>
+            <p>Powered by Node.js, Express, and OpenRouter. Built by GitHub Copilot.</p>
+        </footer>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const searchForm = document.getElementById('search-form');
+            const resultsBody = document.getElementById('results-body');
+            const resultsTable = document.getElementById('results-table');
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const emptyState = document.getElementById('empty-state');
+            const totalCountEl = document.getElementById('total-count');
+            const selectedCountEl = document.getElementById('selected-count');
+            const workflowSection = document.getElementById('workflow-section');
+
+            const verifySourcesBtn = document.getElementById('verify-sources');
+            const refreshArchiveBtn = document.getElementById('refresh-archive');
+            const refreshModelsBtn = document.getElementById('refresh-models');
+            const modelDropdown = document.getElementById('model-dropdown');
+
+            // State
+            let selectedSpeeches = new Set();
+            let allSpeeches = [];
+
+            // Initial data load
+            performSearch();
+            loadModels();
+            updateStatus();
+
+            // Event Listeners
+            searchForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const keywords = e.target.elements.keywords.value;
+                const startDate = e.target.elements['start-date'].value;
+                const endDate = e.target.elements['end-date'].value;
+                performSearch(keywords, startDate, endDate);
+            });
+
+            verifySourcesBtn.addEventListener('click', async () => {
+                verifySourcesBtn.disabled = true;
+                verifySourcesBtn.textContent = 'Verifying...';
+
+                try {
+                    const response = await fetch('/api/verify-sources');
+                    const data = await response.json();
+                    showSourceStatus(data);
+                } catch (error) {
+                    showNotification('Failed to verify sources: ' + error.message, 'error');
+                } finally {
+                    verifySourcesBtn.disabled = false;
+                    verifySourcesBtn.textContent = 'Verify Sources';
+                }
+            });
+
+            refreshArchiveBtn.addEventListener('click', async () => {
+                refreshArchiveBtn.disabled = true;
+                refreshArchiveBtn.textContent = 'Refreshing...';
+
+                try {
+                    const response = await fetch('/api/refresh-archive', { method: 'POST' });
+                    const data = await response.json();
+                    showNotification(`Archive refreshed: ${data.inserted} new items added`, 'success');
+                    performSearch();
+                } catch (error) {
+                    showNotification('Failed to refresh archive: ' + error.message, 'error');
+                } finally {
+                    refreshArchiveBtn.disabled = false;
+                    refreshArchiveBtn.textContent = 'Refresh Archive';
+                }
+            });
+
+            refreshModelsBtn.addEventListener('click', async () => {
+                refreshModelsBtn.disabled = true;
+                refreshModelsBtn.textContent = 'Refreshing...';
+
+                try {
+                    await fetch('/api/refresh-models', { method: 'POST' });
+                    showNotification('Models refreshed successfully', 'success');
+                    loadModels();
+                } catch (error) {
+                    showNotification('Failed to refresh models: ' + error.message, 'error');
+                } finally {
+                    refreshModelsBtn.disabled = false;
+                    refreshModelsBtn.textContent = 'Refresh Models';
+                }
+            });
+
+            // Workflow event listeners
+            document.getElementById('generate-script').addEventListener('click', async () => {
+                if (selectedSpeeches.size === 0) {
+                    showNotification('Please select at least one speech', 'warning');
+                    return;
+                }
+
+                if (!modelDropdown.value) {
+                    showNotification('Please select an AI model', 'warning');
+                    return;
+                }
+
+                await generateScript();
+            });
+
+            document.getElementById('generate-audio').addEventListener('click', async () => {
+                await generateAudio();
+            });
+
+            document.getElementById('finalize').addEventListener('click', async () => {
+                await finalizePodcast();
+            });
+
+            // Functions
+            async function performSearch(keyword = '', startDate = '', endDate = '') {
+                showLoading(true);
+
+                try {
+                    const params = new URLSearchParams({ keyword, startDate, endDate, limit: 50 });
+                    const response = await fetch(`/api/search?${params}`);
+                    const data = await response.json();
+
+                    if (data.results) {
+                        allSpeeches = data.results;
+                        displayResults(data.results);
+                        updateResultsStats(data.pagination);
+                    } else {
+                        throw new Error('Invalid response format');
+                    }
+                } catch (error) {
+                    showNotification('Search failed: ' + error.message, 'error');
+                    displayResults([]);
+                } finally {
+                    showLoading(false);
+                }
+            }
+
+            async function loadModels() {
+                try {
+                    const response = await fetch('/api/models');
+                    const models = await response.json();
+                    modelDropdown.innerHTML = '<option value="">Select AI Model...</option>';
+
+                    const addModelsToDropdown = (category, modelList) => {
+                        if (!modelList || modelList.length === 0) return;
+
+                        const optgroup = document.createElement('optgroup');
+                        optgroup.label = category;
+                        modelList.forEach(model => {
+                            const option = document.createElement('option');
+                            option.value = model;
+                            option.textContent = model;
+                            optgroup.appendChild(option);
+                        });
+                        modelDropdown.appendChild(optgroup);
+                    };
+
+                    if (models.top_overall) {
+                        addModelsToDropdown('Top Overall', models.top_overall);
+                    }
+                    if (models.top_free) {
+                        addModelsToDropdown('Top Free', models.top_free);
+                    }
+                } catch (error) {
+                    showNotification('Failed to load models: ' + error.message, 'error');
+                }
+            }
+
+            function displayResults(results) {
+                if (!results || results.length === 0) {
+                    resultsTable.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                resultsTable.style.display = 'table';
+                emptyState.style.display = 'none';
+
+                resultsBody.innerHTML = '';
+                results.forEach(result => {
+                    const row = document.createElement('tr');
+                    const isSelected = selectedSpeeches.has(result.id);
+
+                    row.innerHTML = `
+                        <td>
+                            <input type="checkbox" class="result-checkbox" data-id="${result.id}" ${isSelected ? 'checked' : ''}>
+                        </td>
+                        <td>
+                            <div class="speech-title">${result.title || 'Untitled'}</div>
+                            <div class="speech-meta">${result.rally_location || 'Location unknown'}</div>
+                        </td>
+                        <td>${result.date ? new Date(result.date).toLocaleDateString() : 'Unknown'}</td>
+                        <td>
+                            <span class="source-badge source-${result.source.toLowerCase()}">${result.source}</span>
+                        </td>
+                        <td>
+                            <div class="action-buttons-cell">
+                                ${result.video_url ? `<a href="${result.video_url}" target="_blank" class="btn btn-primary btn-small">View</a>` : ''}
+                                ${result.transcript_url ? `<a href="${result.transcript_url}" target="_blank" class="btn btn-success btn-small">Transcript</a>` : ''}
+                            </div>
+                        </td>
+                    `;
+                    resultsBody.appendChild(row);
+                });
+
+                // Add event listeners for checkboxes
+                document.querySelectorAll('.result-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', handleSelectionChange);
+                });
+            }
+
+            function handleSelectionChange(event) {
+                const speechId = event.target.dataset.id;
+                if (event.target.checked) {
+                    selectedSpeeches.add(speechId);
+                } else {
+                    selectedSpeeches.delete(speechId);
+                }
+                updateSelectedCount();
+                updateWorkflowVisibility();
+            }
+
+            function updateSelectedCount() {
+                selectedCountEl.textContent = `${selectedSpeeches.size} selected`;
+            }
+
+            function updateResultsStats(pagination) {
+                if (pagination) {
+                    totalCountEl.textContent = `${pagination.total} total speeches`;
+                } else {
+                    totalCountEl.textContent = `${allSpeeches.length} speeches`;
+                }
+            }
+
+            function updateWorkflowVisibility() {
+                workflowSection.style.display = selectedSpeeches.size > 0 ? 'block' : 'none';
+            }
+
+            function showLoading(show) {
+                loadingIndicator.style.display = show ? 'block' : 'none';
+                resultsTable.style.display = show ? 'none' : 'table';
+                emptyState.style.display = 'none';
+            }
+
+            function showNotification(message, type = 'info') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 1rem 1.5rem;
+                    border-radius: 6px;
+                    color: white;
+                    font-weight: 600;
+                    z-index: 1000;
+                    max-width: 400px;
+                    box-shadow: var(--shadow-lg);
+                `;
+
+                switch (type) {
+                    case 'success':
+                        notification.style.background = 'var(--success-color)';
+                        break;
+                    case 'error':
+                        notification.style.background = 'var(--error-color)';
+                        break;
+                    case 'warning':
+                        notification.style.background = 'var(--warning-color)';
+                        break;
+                    default:
+                        notification.style.background = 'var(--info-color)';
+                }
+
+                notification.textContent = message;
+                document.body.appendChild(notification);
+
+                // Auto remove after 5 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 5000);
+            }
+
+            function showSourceStatus(sources) {
+                let message = 'Data Source Status:\n\n';
+                for (const [name, status] of Object.entries(sources)) {
+                    const statusText = status.available ? '✅ Available' : '❌ Unavailable';
+                    message += `${name.toUpperCase()}: ${statusText}\n`;
+                    if (!status.available && status.error) {
+                        message += `  Error: ${status.error}\n`;
+                    }
+                }
+                alert(message);
+            }
+
+            async function updateStatus() {
+                // Update status indicators based on system health
+                try {
+                    const response = await fetch('/api/verify-sources');
+                    const sources = await response.json();
+
+                    const availableSources = Object.values(sources).filter(s => s.available).length;
+                    const totalSources = Object.keys(sources).length;
+
+                    const sourcesStatus = document.getElementById('sources-status');
+                    if (availableSources === totalSources) {
+                        sourcesStatus.className = 'status-indicator';
+                    } else if (availableSources > 0) {
+                        sourcesStatus.className = 'status-indicator warning';
+                    } else {
+                        sourcesStatus.className = 'status-indicator error';
+                    }
+                } catch (error) {
+                    console.error('Failed to update status:', error);
+                }
+            }
+
+            // Workflow functions
+            let currentWorkflowId = null;
+
+            async function createWorkflow() {
+                if (selectedSpeeches.size === 0) return null;
+
+                try {
+                    const response = await fetch('/api/workflow', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: `Podcast ${new Date().toLocaleDateString()}`,
+                            speechIds: Array.from(selectedSpeeches)
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        currentWorkflowId = data.workflowId;
+                        updateWorkflowDisplay(data);
+                        return data.workflowId;
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    showNotification('Failed to create workflow: ' + error.message, 'error');
+                    return null;
+                }
+            }
+
+            async function generateScript() {
+                const generateBtn = document.getElementById('generate-script');
+                generateBtn.disabled = true;
+                generateBtn.textContent = 'Generating...';
+
+                try {
+                    // Create workflow if not exists
+                    if (!currentWorkflowId) {
+                        currentWorkflowId = await createWorkflow();
+                        if (!currentWorkflowId) return;
+                    }
+
+                    const response = await fetch('/api/generate-script', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            workflowId: currentWorkflowId,
+                            model: modelDropdown.value,
+                            style: 'professional',
+                            duration: 10
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        showNotification('Script generated successfully!', 'success');
+                        updateWorkflowDisplay(data);
+                        document.getElementById('generate-audio').disabled = false;
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    showNotification('Failed to generate script: ' + error.message, 'error');
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = 'Generate Script';
+                }
+            }
+
+            async function generateAudio() {
+                if (!currentWorkflowId) {
+                    showNotification('Please generate a script first', 'warning');
+                    return;
+                }
+
+                const generateBtn = document.getElementById('generate-audio');
+                generateBtn.disabled = true;
+                generateBtn.textContent = 'Generating...';
+
+                try {
+                    const response = await fetch('/api/generate-audio', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            workflowId: currentWorkflowId,
+                            voice: 'default',
+                            speed: 1.0
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        showNotification('Audio generated successfully!', 'success');
+                        updateWorkflowDisplay(data);
+                        document.getElementById('finalize').disabled = false;
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    showNotification('Failed to generate audio: ' + error.message, 'error');
+                } finally {
+                    generateBtn.disabled = false;
+                    generateBtn.textContent = 'Generate Audio';
+                }
+            }
+
+            async function finalizePodcast() {
+                if (!currentWorkflowId) {
+                    showNotification('Please complete the previous steps first', 'warning');
+                    return;
+                }
+
+                const finalizeBtn = document.getElementById('finalize');
+                finalizeBtn.disabled = true;
+                finalizeBtn.textContent = 'Finalizing...';
+
+                try {
+                    const response = await fetch('/api/finalize', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            workflowId: currentWorkflowId,
+                            title: `Trump Podcast - ${new Date().toLocaleDateString()}`,
+                            description: 'AI-generated podcast from selected Trump speeches'
+                        })
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        showNotification('Podcast finalized successfully!', 'success');
+                        updateWorkflowDisplay(data);
+
+                        // Show download/RSS links
+                        const workflowItems = document.getElementById('workflow-items');
+                        workflowItems.innerHTML += `
+                            <div style="margin-top: 1rem; padding: 1rem; background: #f0f8ff; border-radius: 6px;">
+                                <h4>Podcast Ready!</h4>
+                                <p>RSS Feed: <a href="${data.rssUrl}" target="_blank">${data.rssUrl}</a></p>
+                                <p>Title: ${data.podcastTitle}</p>
+                            </div>
+                        `;
+                    } else {
+                        throw new Error(data.error);
+                    }
+                } catch (error) {
+                    showNotification('Failed to finalize podcast: ' + error.message, 'error');
+                } finally {
+                    finalizeBtn.disabled = false;
+                    finalizeBtn.textContent = 'Finalize Podcast';
+                }
+            }
+
+            function updateWorkflowDisplay(data) {
+                const workflowItems = document.getElementById('workflow-items');
+
+                if (!workflowItems.innerHTML) {
+                    workflowItems.innerHTML = `
+                        <div style="padding: 1rem; background: #f8f9fa; border-radius: 6px; margin-bottom: 1rem;">
+                            <h4>Workflow Progress</h4>
+                            <div id="workflow-status"></div>
+                        </div>
+                    `;
+                }
+
+                const statusDiv = document.getElementById('workflow-status');
+                let statusHtml = `<p><strong>Workflow ID:</strong> ${data.workflowId || currentWorkflowId}</p>`;
+
+                if (data.status) {
+                    statusHtml += `<p><strong>Status:</strong> ${data.status}</p>`;
+                }
+
+                if (data.script) {
+                    statusHtml += `<p><strong>Script:</strong> Generated ✅</p>`;
+                }
+
+                if (data.audioUrl) {
+                    statusHtml += `<p><strong>Audio:</strong> Generated ✅</p>`;
+                }
+
+                if (data.rssUrl) {
+                    statusHtml += `<p><strong>RSS Feed:</strong> Created ✅</p>`;
+                }
+
+                statusDiv.innerHTML = statusHtml;
+            }
+        });
+    </script>
+</body>
+</html>
