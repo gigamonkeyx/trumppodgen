@@ -334,7 +334,7 @@
             text-align: center;
             padding: 2rem;
         }
-        
+
         #error-message {
             color: var(--error-color);
             background-color: #fdd;
@@ -343,6 +343,383 @@
             border-radius: 4px;
             margin-bottom: 1rem;
             text-align: center;
+        }
+
+        .config-section {
+            background: var(--container-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .config-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: end;
+            margin-bottom: 1rem;
+        }
+
+        .config-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .config-status.success {
+            color: var(--success-color);
+        }
+
+        .config-status.error {
+            color: var(--error-color);
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            background: #f8f9fa;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .upload-area:hover {
+            border-color: var(--secondary-color);
+            background: #f0f8ff;
+        }
+
+        .upload-area.dragover {
+            border-color: var(--secondary-color);
+            background: #e6f3ff;
+        }
+
+        .upload-area input[type="file"] {
+            display: none;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .script-preview {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 1rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            color: var(--secondary-color);
+            border-bottom-color: var(--secondary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Feedback Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+
+        .close-modal:hover {
+            background: #f0f0f0;
+            color: var(--error-color);
+        }
+
+        .rating-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .star {
+            font-size: 1.5rem;
+            color: #ddd;
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .star:hover,
+        .star.active {
+            color: #ffd700;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 0.75rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: border-color 0.2s ease;
+        }
+
+        .feedback-textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        /* Onboarding Wizard Styles */
+        .wizard-modal {
+            display: none;
+            position: fixed;
+            z-index: 1100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .wizard-modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wizard-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2.5rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: slideIn 0.3s ease;
+            position: relative;
+        }
+
+        .wizard-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .wizard-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .wizard-subtitle {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .wizard-step {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .wizard-step.active {
+            display: block;
+        }
+
+        .wizard-step-content {
+            margin-bottom: 2rem;
+        }
+
+        .wizard-step h3 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .wizard-step p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .wizard-demo {
+            background: #f8f9fa;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .wizard-demo.highlight {
+            border-color: var(--secondary-color);
+            background: #e6f3ff;
+        }
+
+        .wizard-progress {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+
+        .wizard-progress-step {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ddd;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin: 0 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .wizard-progress-step.active {
+            background: var(--secondary-color);
+        }
+
+        .wizard-progress-step.completed {
+            background: var(--success-color);
+        }
+
+        .wizard-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .wizard-skip {
+            color: #666;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .wizard-skip:hover {
+            color: var(--secondary-color);
+        }
+
+        .wizard-nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
         }
     </style>
 </head>
@@ -369,8 +746,56 @@
         </div>
 
         <div class="main-content">
+            <!-- Configuration Section -->
+            <div class="config-section">
+                <h2>⚙️ Configuration</h2>
+                <div class="tabs">
+                    <button class="tab active" data-tab="api-config">API Keys</button>
+                    <button class="tab" data-tab="script-upload">Script Upload</button>
+                </div>
+
+                <!-- API Configuration Tab -->
+                <div class="tab-content active" id="api-config">
+                    <form id="api-config-form" class="config-form">
+                        <div class="form-group">
+                            <label for="openrouter-key">OpenRouter API Key</label>
+                            <input type="password" id="openrouter-key" name="openrouter-key"
+                                   placeholder="Enter your OpenRouter API key..."
+                                   style="font-family: monospace;">
+                            <div class="config-status" id="api-status">
+                                <span>Not configured - Get your key from <a href="https://openrouter.ai" target="_blank">openrouter.ai</a></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">Save API Key</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Script Upload Tab -->
+                <div class="tab-content" id="script-upload">
+                    <div class="upload-area" id="script-upload-area">
+                        <div class="upload-icon">📄</div>
+                        <h3>Upload Custom Script</h3>
+                        <p>Drag & drop a text file or click to browse</p>
+                        <input type="file" id="script-file-input" accept=".txt,.md,.doc,.docx">
+                        <button type="button" class="btn btn-primary btn-small" onclick="document.getElementById('script-file-input').click()">
+                            Choose File
+                        </button>
+                    </div>
+                    <div id="script-preview-container" style="display: none;">
+                        <h4>Script Preview:</h4>
+                        <div class="script-preview" id="script-preview"></div>
+                        <div class="action-buttons" style="margin-top: 1rem;">
+                            <button id="use-uploaded-script" class="btn btn-success">Use This Script</button>
+                            <button id="clear-script" class="btn btn-warning btn-small">Clear</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="search-section">
-                <h2>Search Archive</h2>
+                <h2>🔍 Search Archive</h2>
                 <form id="search-form" class="search-form">
                     <div class="form-group">
                         <label for="keywords">Keywords</label>
@@ -431,14 +856,15 @@
             <div class="workflow-section" style="display: none;" id="workflow-section">
                 <div class="results-section">
                     <div class="results-header">
-                        <h2>Podcast Workflow</h2>
+                        <h2>🎙️ Podcast Workflow</h2>
                         <div class="action-buttons">
                             <select id="model-dropdown" style="padding: 0.5rem; border-radius: 4px; border: 2px solid var(--border-color);">
                                 <option value="">Select AI Model...</option>
                             </select>
                             <button id="generate-script" class="btn btn-success btn-small">Generate Script</button>
-                            <button id="generate-audio" class="btn btn-warning btn-small">Generate Audio</button>
-                            <button id="finalize" class="btn btn-primary btn-small">Finalize Podcast</button>
+                            <button id="upload-script-btn" class="btn btn-warning btn-small">Use Uploaded Script</button>
+                            <button id="generate-audio" class="btn btn-warning btn-small" disabled>Generate Audio</button>
+                            <button id="finalize" class="btn btn-primary btn-small" disabled>Finalize Podcast</button>
                         </div>
                     </div>
                     <div id="workflow-items"></div>
@@ -449,6 +875,168 @@
             <p>Powered by Node.js, Express, and OpenRouter. Built by GitHub Copilot.</p>
         </footer>
     </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">📝 How was your experience?</h3>
+                <button class="close-modal" onclick="closeFeedbackModal()">&times;</button>
+            </div>
+
+            <form id="feedback-form">
+                <div class="rating-group">
+                    <label><strong>Overall Experience:</strong></label>
+                    <div class="rating-stars" data-rating="overall">
+                        <span class="star" data-value="1">⭐</span>
+                        <span class="star" data-value="2">⭐</span>
+                        <span class="star" data-value="3">⭐</span>
+                        <span class="star" data-value="4">⭐</span>
+                        <span class="star" data-value="5">⭐</span>
+                    </div>
+                </div>
+
+                <div class="rating-group">
+                    <label><strong>Script Quality:</strong></label>
+                    <div class="rating-stars" data-rating="script">
+                        <span class="star" data-value="1">⭐</span>
+                        <span class="star" data-value="2">⭐</span>
+                        <span class="star" data-value="3">⭐</span>
+                        <span class="star" data-value="4">⭐</span>
+                        <span class="star" data-value="5">⭐</span>
+                    </div>
+                </div>
+
+                <div class="rating-group">
+                    <label><strong>Audio Quality:</strong></label>
+                    <div class="rating-stars" data-rating="audio">
+                        <span class="star" data-value="1">⭐</span>
+                        <span class="star" data-value="2">⭐</span>
+                        <span class="star" data-value="3">⭐</span>
+                        <span class="star" data-value="4">⭐</span>
+                        <span class="star" data-value="5">⭐</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedback-comments"><strong>Additional Comments:</strong></label>
+                    <textarea id="feedback-comments" class="feedback-textarea"
+                              placeholder="Tell us what you liked or what could be improved..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="feedback-recommend">
+                        Would you recommend this tool to others?
+                    </label>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeFeedbackModal()">Skip</button>
+                    <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Onboarding Wizard Modal -->
+    <div id="onboarding-wizard" class="wizard-modal">
+        <div class="wizard-content">
+            <div class="wizard-header">
+                <h2 class="wizard-title">🎙️ Welcome to Trump Podcast Generator</h2>
+                <p class="wizard-subtitle">Let's get you started with creating your first AI-powered podcast!</p>
+            </div>
+
+            <div class="wizard-progress">
+                <div class="wizard-progress-step active" data-step="1">1</div>
+                <div class="wizard-progress-step" data-step="2">2</div>
+                <div class="wizard-progress-step" data-step="3">3</div>
+                <div class="wizard-progress-step" data-step="4">4</div>
+            </div>
+
+            <!-- Step 1: Welcome & Overview -->
+            <div class="wizard-step active" data-step="1">
+                <div class="wizard-step-content">
+                    <h3>🚀 What You Can Do</h3>
+                    <p>This tool helps you create professional podcasts from Trump speeches using AI technology:</p>
+                    <ul style="margin-left: 1.5rem; color: #666;">
+                        <li><strong>AI Script Generation</strong> - Convert speeches into podcast scripts</li>
+                        <li><strong>Voice Cloning</strong> - Generate audio with custom voices</li>
+                        <li><strong>RSS Feeds</strong> - Create shareable podcast feeds</li>
+                        <li><strong>Batch Processing</strong> - Handle multiple speeches at once</li>
+                    </ul>
+                    <div class="wizard-demo">
+                        <p><strong>🎯 Goal:</strong> Create your first podcast in under 5 minutes!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: API Key Setup -->
+            <div class="wizard-step" data-step="2">
+                <div class="wizard-step-content">
+                    <h3>🔑 Configure AI Access</h3>
+                    <p>To generate scripts, you'll need an OpenRouter API key (free tier available):</p>
+                    <ol style="margin-left: 1.5rem; color: #666;">
+                        <li>Visit <a href="https://openrouter.ai" target="_blank">openrouter.ai</a> and sign up</li>
+                        <li>Get your API key from the dashboard</li>
+                        <li>Enter it in the Configuration tab above</li>
+                    </ol>
+                    <div class="wizard-demo" id="wizard-api-demo">
+                        <p>💡 <strong>Tip:</strong> You can also upload your own scripts if you prefer!</p>
+                        <button type="button" class="btn btn-primary btn-small" onclick="highlightApiConfig()">
+                            Show Me Where →
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: First Search -->
+            <div class="wizard-step" data-step="3">
+                <div class="wizard-step-content">
+                    <h3>🔍 Find Speeches</h3>
+                    <p>The system has 19+ Trump speeches ready to use. Let's find some interesting content:</p>
+                    <div class="wizard-demo" id="wizard-search-demo">
+                        <p><strong>Try searching for:</strong> "rally", "crowd", or "media"</p>
+                        <button type="button" class="btn btn-primary btn-small" onclick="highlightSearch()">
+                            Show Me Search →
+                        </button>
+                    </div>
+                    <p style="margin-top: 1rem;">Select 2-3 speeches that interest you, then we'll create a workflow!</p>
+                </div>
+            </div>
+
+            <!-- Step 4: Create Workflow -->
+            <div class="wizard-step" data-step="4">
+                <div class="wizard-step-content">
+                    <h3>🎙️ Generate Your Podcast</h3>
+                    <p>Once you've selected speeches, you can:</p>
+                    <ul style="margin-left: 1.5rem; color: #666;">
+                        <li><strong>Generate Script</strong> - AI creates a professional podcast script</li>
+                        <li><strong>Upload Script</strong> - Use your own custom script</li>
+                        <li><strong>Generate Audio</strong> - Convert script to speech</li>
+                        <li><strong>Create RSS</strong> - Make it shareable as a podcast feed</li>
+                    </ul>
+                    <div class="wizard-demo">
+                        <p><strong>🎉 You're Ready!</strong></p>
+                        <p>The workflow section will appear when you select speeches.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-navigation">
+                <a href="#" class="wizard-skip" onclick="skipOnboarding()">Skip Tutorial</a>
+                <div class="wizard-nav-buttons">
+                    <button type="button" class="btn btn-secondary" id="wizard-prev" onclick="previousStep()" style="display: none;">
+                        ← Previous
+                    </button>
+                    <button type="button" class="btn btn-primary" id="wizard-next" onclick="nextStep()">
+                        Next →
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // DOM Elements
@@ -466,9 +1054,23 @@
             const refreshModelsBtn = document.getElementById('refresh-models');
             const modelDropdown = document.getElementById('model-dropdown');
 
+            // Configuration elements
+            const apiConfigForm = document.getElementById('api-config-form');
+            const openrouterKeyInput = document.getElementById('openrouter-key');
+            const apiStatus = document.getElementById('api-status');
+            const scriptUploadArea = document.getElementById('script-upload-area');
+            const scriptFileInput = document.getElementById('script-file-input');
+            const scriptPreviewContainer = document.getElementById('script-preview-container');
+            const scriptPreview = document.getElementById('script-preview');
+            const useUploadedScriptBtn = document.getElementById('use-uploaded-script');
+            const clearScriptBtn = document.getElementById('clear-script');
+            const uploadScriptBtn = document.getElementById('upload-script-btn');
+
             // State
             let selectedSpeeches = new Set();
             let allSpeeches = [];
+            let uploadedScript = null;
+            let currentApiKey = null;
 
             // Initial data load
             performSearch();
@@ -582,32 +1184,71 @@
 
             async function loadModels() {
                 try {
-                    const response = await fetch('/api/models');
-                    const models = await response.json();
+                    const headers = {};
+                    if (currentApiKey) {
+                        headers['X-OpenRouter-Key'] = currentApiKey;
+                    }
+
+                    const response = await fetch('/api/models', { headers });
+                    const data = await response.json();
                     modelDropdown.innerHTML = '<option value="">Select AI Model...</option>';
 
-                    const addModelsToDropdown = (category, modelList) => {
-                        if (!modelList || modelList.length === 0) return;
-
-                        const optgroup = document.createElement('optgroup');
-                        optgroup.label = category;
-                        modelList.forEach(model => {
-                            const option = document.createElement('option');
-                            option.value = model;
-                            option.textContent = model;
-                            optgroup.appendChild(option);
+                    if (data.models && data.models.length > 0) {
+                        // Group models by provider
+                        const modelsByProvider = {};
+                        data.models.forEach(model => {
+                            const provider = model.provider || 'Other';
+                            if (!modelsByProvider[provider]) {
+                                modelsByProvider[provider] = [];
+                            }
+                            modelsByProvider[provider].push(model);
                         });
-                        modelDropdown.appendChild(optgroup);
-                    };
 
-                    if (models.top_overall) {
-                        addModelsToDropdown('Top Overall', models.top_overall);
-                    }
-                    if (models.top_free) {
-                        addModelsToDropdown('Top Free', models.top_free);
+                        // Add models to dropdown grouped by provider
+                        Object.entries(modelsByProvider).forEach(([provider, models]) => {
+                            const optgroup = document.createElement('optgroup');
+                            optgroup.label = provider;
+
+                            models.forEach(model => {
+                                const option = document.createElement('option');
+                                option.value = model.id;
+                                option.textContent = model.name;
+                                option.disabled = !model.available;
+                                if (!model.available && model.reason) {
+                                    option.textContent += ` (${model.reason})`;
+                                }
+                                optgroup.appendChild(option);
+                            });
+
+                            modelDropdown.appendChild(optgroup);
+                        });
+
+                        // Update AI status indicator
+                        const aiStatus = document.getElementById('ai-status');
+                        if (data.configured) {
+                            aiStatus.className = 'status-indicator';
+                        } else {
+                            aiStatus.className = 'status-indicator error';
+                        }
+                    } else {
+                        // Add fallback message
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = data.message || 'No models available';
+                        option.disabled = true;
+                        modelDropdown.appendChild(option);
+
+                        // Update AI status to error
+                        const aiStatus = document.getElementById('ai-status');
+                        aiStatus.className = 'status-indicator error';
                     }
                 } catch (error) {
+                    console.error('Failed to load models:', error);
                     showNotification('Failed to load models: ' + error.message, 'error');
+
+                    // Update AI status to error
+                    const aiStatus = document.getElementById('ai-status');
+                    aiStatus.className = 'status-indicator error';
                 }
             }
 
@@ -899,11 +1540,14 @@
                         const workflowItems = document.getElementById('workflow-items');
                         workflowItems.innerHTML += `
                             <div style="margin-top: 1rem; padding: 1rem; background: #f0f8ff; border-radius: 6px;">
-                                <h4>Podcast Ready!</h4>
+                                <h4>Podcast Ready! 🎉</h4>
                                 <p>RSS Feed: <a href="${data.rssUrl}" target="_blank">${data.rssUrl}</a></p>
                                 <p>Title: ${data.podcastTitle}</p>
                             </div>
                         `;
+
+                        // Trigger feedback modal after successful completion
+                        triggerFeedbackAfterGeneration();
                     } else {
                         throw new Error(data.error);
                     }
@@ -948,7 +1592,542 @@
 
                 statusDiv.innerHTML = statusHtml;
             }
+
+            // Tab switching functionality
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const targetTab = tab.dataset.tab;
+
+                    // Update tab buttons
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+
+                    // Update tab content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+
+            // API Key Configuration with validation
+            apiConfigForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const apiKey = openrouterKeyInput.value.trim();
+
+                if (!apiKey) {
+                    showNotification('Please enter an API key', 'error');
+                    return;
+                }
+
+                // Show validation in progress
+                showNotification('Validating API key...', 'info');
+
+                try {
+                    // Validate API key with server
+                    const validationResponse = await fetch('/api/validate-openrouter-key', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-OpenRouter-Key': apiKey
+                        },
+                        body: JSON.stringify({ apiKey })
+                    });
+
+                    const validationResult = await validationResponse.json();
+
+                    if (validationResult.valid) {
+                        // Store validated API key
+                        localStorage.setItem('openrouterApiKey', apiKey);
+                        currentApiKey = apiKey;
+                        updateApiStatus(true);
+
+                        const modelCountText = validationResult.modelCount ?
+                            ` (${validationResult.modelCount} models available)` : '';
+                        const cacheText = validationResult.fromCache ? ' (cached)' : '';
+
+                        showNotification(
+                            `✅ API key validated successfully!${modelCountText}${cacheText}`,
+                            'success'
+                        );
+
+                        // Reload models with validated API key
+                        await loadModels();
+                    } else {
+                        // Show specific validation error
+                        updateApiStatus(false);
+
+                        let errorMessage = 'API key validation failed';
+                        if (validationResult.error === 'INVALID_KEY') {
+                            errorMessage = '❌ Invalid or expired API key';
+                        } else if (validationResult.error === 'INVALID_FORMAT') {
+                            errorMessage = '❌ Invalid API key format (should start with "sk-or-v1-")';
+                        } else if (validationResult.error === 'RATE_LIMITED') {
+                            errorMessage = '⚠️ Rate limit exceeded - try again later';
+                        } else if (validationResult.error === 'NETWORK_ERROR') {
+                            errorMessage = '🌐 Network error - check your connection';
+                        } else if (validationResult.message) {
+                            errorMessage = `❌ ${validationResult.message}`;
+                        }
+
+                        showNotification(errorMessage, 'error');
+                    }
+                } catch (error) {
+                    console.error('API key validation error:', error);
+                    updateApiStatus(false);
+                    showNotification('Failed to validate API key: ' + error.message, 'error');
+                }
+            });
+
+            function updateApiStatus(configured) {
+                if (configured) {
+                    apiStatus.innerHTML = '<span class="config-status success">✅ API key configured and ready</span>';
+                    apiStatus.className = 'config-status success';
+                } else {
+                    apiStatus.innerHTML = '<span class="config-status error">❌ Not configured - Get your key from <a href="https://openrouter.ai" target="_blank">openrouter.ai</a></span>';
+                    apiStatus.className = 'config-status error';
+                }
+            }
+
+            // Script Upload Functionality
+            scriptUploadArea.addEventListener('click', () => {
+                scriptFileInput.click();
+            });
+
+            scriptUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                scriptUploadArea.classList.add('dragover');
+            });
+
+            scriptUploadArea.addEventListener('dragleave', () => {
+                scriptUploadArea.classList.remove('dragover');
+            });
+
+            scriptUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                scriptUploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleScriptFile(files[0]);
+                }
+            });
+
+            scriptFileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    handleScriptFile(e.target.files[0]);
+                }
+            });
+
+            function handleScriptFile(file) {
+                if (!file.type.includes('text') && !file.name.endsWith('.txt') && !file.name.endsWith('.md')) {
+                    showNotification('Please upload a text file (.txt, .md)', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    uploadedScript = content;
+
+                    // Show preview
+                    scriptPreview.textContent = content.substring(0, 1000) + (content.length > 1000 ? '...' : '');
+                    scriptPreviewContainer.style.display = 'block';
+
+                    // Enable workflow button
+                    uploadScriptBtn.disabled = false;
+
+                    showNotification(`Script uploaded: ${file.name} (${content.length} characters)`, 'success');
+                };
+                reader.readAsText(file);
+            }
+
+            useUploadedScriptBtn.addEventListener('click', () => {
+                if (uploadedScript && selectedSpeeches.size > 0) {
+                    useUploadedScriptInWorkflow();
+                } else if (!uploadedScript) {
+                    showNotification('No script uploaded', 'error');
+                } else {
+                    showNotification('Please select speeches first', 'error');
+                }
+            });
+
+            clearScriptBtn.addEventListener('click', () => {
+                uploadedScript = null;
+                scriptPreview.textContent = '';
+                scriptPreviewContainer.style.display = 'none';
+                scriptFileInput.value = '';
+                uploadScriptBtn.disabled = true;
+                showNotification('Script cleared', 'info');
+            });
+
+            uploadScriptBtn.addEventListener('click', () => {
+                if (uploadedScript) {
+                    useUploadedScriptInWorkflow();
+                } else {
+                    showNotification('No script uploaded. Use the Script Upload tab to upload a script first.', 'error');
+                }
+            });
+
+            function useUploadedScriptInWorkflow() {
+                if (!uploadedScript) {
+                    showNotification('No script uploaded', 'error');
+                    return;
+                }
+
+                if (selectedSpeeches.size === 0) {
+                    showNotification('Please select at least one speech first', 'error');
+                    return;
+                }
+
+                // Create workflow with uploaded script
+                createWorkflowWithScript(uploadedScript);
+            }
+
+            async function createWorkflowWithScript(script) {
+                try {
+                    const speechIds = Array.from(selectedSpeeches);
+
+                    // Create workflow
+                    const workflowResponse = await fetch('/api/workflow', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            name: `Custom Script Workflow - ${new Date().toLocaleDateString()}`,
+                            speechIds: speechIds
+                        })
+                    });
+
+                    if (!workflowResponse.ok) {
+                        throw new Error('Failed to create workflow');
+                    }
+
+                    const workflow = await workflowResponse.json();
+                    currentWorkflowId = workflow.workflowId;
+
+                    // Upload script directly to workflow
+                    const scriptResponse = await fetch('/api/upload-script', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            workflowId: workflow.workflowId,
+                            script: script
+                        })
+                    });
+
+                    if (!scriptResponse.ok) {
+                        throw new Error('Failed to upload script to workflow');
+                    }
+
+                    showNotification('Workflow created with uploaded script!', 'success');
+
+                    // Enable audio generation
+                    document.getElementById('generate-audio').disabled = false;
+                    document.getElementById('finalize').disabled = false;
+
+                    // Update workflow display
+                    updateWorkflowDisplayWithScript(workflow.workflowId, script);
+
+                } catch (error) {
+                    console.error('Workflow creation error:', error);
+                    showNotification('Failed to create workflow: ' + error.message, 'error');
+                }
+            }
+
+            function updateWorkflowDisplayWithScript(workflowId, script) {
+                const workflowItems = document.getElementById('workflow-items');
+                workflowItems.innerHTML = `
+                    <div style="padding: 1rem; background: #f8f9fa; border-radius: 6px; margin-bottom: 1rem;">
+                        <h4>Workflow Progress</h4>
+                        <div id="workflow-status">
+                            <p><strong>Workflow ID:</strong> ${workflowId}</p>
+                            <p><strong>Status:</strong> Script uploaded ✅</p>
+                            <div style="margin-top: 1rem;">
+                                <h5>Script Preview:</h5>
+                                <div class="script-preview">${script.substring(0, 500)}${script.length > 500 ? '...' : ''}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Check for saved API key on load
+            const savedApiKey = localStorage.getItem('openrouterApiKey');
+            if (savedApiKey) {
+                openrouterKeyInput.value = savedApiKey;
+                currentApiKey = savedApiKey;
+                updateApiStatus(true);
+            } else {
+                updateApiStatus(false);
+            }
+
+            // Initialize feedback system
+            initializeFeedbackSystem();
+
+            // Initialize onboarding wizard
+            initializeOnboarding();
         });
+
+        // Feedback Modal Functions
+        let feedbackRatings = {
+            overall: 0,
+            script: 0,
+            audio: 0
+        };
+
+        function initializeFeedbackSystem() {
+            // Initialize star ratings
+            document.querySelectorAll('.rating-stars').forEach(ratingGroup => {
+                const stars = ratingGroup.querySelectorAll('.star');
+                const ratingType = ratingGroup.dataset.rating;
+
+                stars.forEach((star, index) => {
+                    star.addEventListener('click', () => {
+                        const rating = index + 1;
+                        feedbackRatings[ratingType] = rating;
+
+                        // Update star display
+                        stars.forEach((s, i) => {
+                            s.classList.toggle('active', i < rating);
+                        });
+                    });
+
+                    star.addEventListener('mouseenter', () => {
+                        stars.forEach((s, i) => {
+                            s.style.color = i <= index ? '#ffd700' : '#ddd';
+                        });
+                    });
+
+                    star.addEventListener('mouseleave', () => {
+                        stars.forEach((s, i) => {
+                            s.style.color = i < feedbackRatings[ratingType] ? '#ffd700' : '#ddd';
+                        });
+                    });
+                });
+            });
+
+            // Handle feedback form submission
+            document.getElementById('feedback-form').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                await submitFeedback();
+            });
+        }
+
+        function showFeedbackModal() {
+            const modal = document.getElementById('feedback-modal');
+            modal.classList.add('show');
+
+            // Reset form
+            feedbackRatings = { overall: 0, script: 0, audio: 0 };
+            document.querySelectorAll('.star').forEach(star => {
+                star.classList.remove('active');
+                star.style.color = '#ddd';
+            });
+            document.getElementById('feedback-comments').value = '';
+            document.getElementById('feedback-recommend').checked = false;
+        }
+
+        function closeFeedbackModal() {
+            const modal = document.getElementById('feedback-modal');
+            modal.classList.remove('show');
+        }
+
+        async function submitFeedback() {
+            try {
+                const comments = document.getElementById('feedback-comments').value;
+                const recommend = document.getElementById('feedback-recommend').checked;
+
+                const feedbackData = {
+                    ratings: feedbackRatings,
+                    comments: comments,
+                    recommend: recommend,
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent,
+                    sessionId: Date.now().toString()
+                };
+
+                const response = await fetch('/api/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(feedbackData)
+                });
+
+                if (response.ok) {
+                    showNotification('Thank you for your feedback! 🎉', 'success');
+                    closeFeedbackModal();
+
+                    // Show appreciation message
+                    setTimeout(() => {
+                        showNotification('Your feedback helps us improve the tool for everyone!', 'info');
+                    }, 2000);
+                } else {
+                    throw new Error('Failed to submit feedback');
+                }
+            } catch (error) {
+                console.error('Feedback submission error:', error);
+                showNotification('Failed to submit feedback. Please try again.', 'error');
+            }
+        }
+
+        // Trigger feedback modal after successful podcast generation
+        function triggerFeedbackAfterGeneration() {
+            // Show feedback modal after a short delay
+            setTimeout(() => {
+                showFeedbackModal();
+            }, 2000);
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('feedback-modal');
+            if (e.target === modal) {
+                closeFeedbackModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeFeedbackModal();
+                closeOnboardingWizard();
+            }
+        });
+
+        // Onboarding Wizard Functions
+        let currentWizardStep = 1;
+        const totalWizardSteps = 4;
+
+        function initializeOnboarding() {
+            // Check if user has completed onboarding
+            const hasCompletedOnboarding = localStorage.getItem('onboardingCompleted');
+
+            if (!hasCompletedOnboarding) {
+                // Show onboarding after a short delay
+                setTimeout(() => {
+                    showOnboardingWizard();
+                }, 1000);
+            }
+        }
+
+        function showOnboardingWizard() {
+            const wizard = document.getElementById('onboarding-wizard');
+            wizard.classList.add('show');
+            currentWizardStep = 1;
+            updateWizardStep();
+        }
+
+        function closeOnboardingWizard() {
+            const wizard = document.getElementById('onboarding-wizard');
+            wizard.classList.remove('show');
+        }
+
+        function skipOnboarding() {
+            localStorage.setItem('onboardingCompleted', 'true');
+            closeOnboardingWizard();
+            showNotification('Welcome! You can always restart the tutorial from the help menu.', 'info');
+        }
+
+        function nextStep() {
+            if (currentWizardStep < totalWizardSteps) {
+                currentWizardStep++;
+                updateWizardStep();
+            } else {
+                // Complete onboarding
+                localStorage.setItem('onboardingCompleted', 'true');
+                closeOnboardingWizard();
+                showNotification('🎉 Tutorial complete! You\'re ready to create amazing podcasts!', 'success');
+            }
+        }
+
+        function previousStep() {
+            if (currentWizardStep > 1) {
+                currentWizardStep--;
+                updateWizardStep();
+            }
+        }
+
+        function updateWizardStep() {
+            // Update step visibility
+            document.querySelectorAll('.wizard-step').forEach((step, index) => {
+                step.classList.toggle('active', index + 1 === currentWizardStep);
+            });
+
+            // Update progress indicators
+            document.querySelectorAll('.wizard-progress-step').forEach((indicator, index) => {
+                const stepNumber = index + 1;
+                indicator.classList.toggle('active', stepNumber === currentWizardStep);
+                indicator.classList.toggle('completed', stepNumber < currentWizardStep);
+            });
+
+            // Update navigation buttons
+            const prevBtn = document.getElementById('wizard-prev');
+            const nextBtn = document.getElementById('wizard-next');
+
+            prevBtn.style.display = currentWizardStep > 1 ? 'block' : 'none';
+            nextBtn.textContent = currentWizardStep === totalWizardSteps ? 'Get Started! 🚀' : 'Next →';
+        }
+
+        function highlightApiConfig() {
+            // Highlight the API configuration tab
+            const apiTab = document.querySelector('[data-tab="api-config"]');
+            if (apiTab) {
+                apiTab.style.background = '#e6f3ff';
+                apiTab.style.border = '2px solid var(--secondary-color)';
+
+                // Remove highlight after 3 seconds
+                setTimeout(() => {
+                    apiTab.style.background = '';
+                    apiTab.style.border = '';
+                }, 3000);
+            }
+
+            // Update demo area
+            const demoArea = document.getElementById('wizard-api-demo');
+            demoArea.classList.add('highlight');
+            demoArea.innerHTML = '<p>✅ <strong>API Configuration highlighted above!</strong></p>';
+        }
+
+        function highlightSearch() {
+            // Highlight the search section
+            const searchSection = document.querySelector('.search-section');
+            if (searchSection) {
+                searchSection.style.background = '#e6f3ff';
+                searchSection.style.border = '2px solid var(--secondary-color)';
+                searchSection.style.borderRadius = '8px';
+                searchSection.style.padding = '1rem';
+
+                // Remove highlight after 3 seconds
+                setTimeout(() => {
+                    searchSection.style.background = '';
+                    searchSection.style.border = '';
+                    searchSection.style.borderRadius = '';
+                    searchSection.style.padding = '';
+                }, 3000);
+            }
+
+            // Update demo area
+            const demoArea = document.getElementById('wizard-search-demo');
+            demoArea.classList.add('highlight');
+            demoArea.innerHTML = '<p>✅ <strong>Search section highlighted above!</strong></p>';
+        }
+
+        // Close wizard when clicking outside
+        document.addEventListener('click', (e) => {
+            const wizard = document.getElementById('onboarding-wizard');
+            if (e.target === wizard) {
+                // Don't auto-close onboarding, require explicit action
+                // closeOnboardingWizard();
+            }
+        });
+
+        // Add restart tutorial function (can be called from help menu)
+        function restartTutorial() {
+            localStorage.removeItem('onboardingCompleted');
+            currentWizardStep = 1;
+            showOnboardingWizard();
+        }
+
+        // Make restart function globally available
+        window.restartTutorial = restartTutorial;
     </script>
 </body>
 </html>
