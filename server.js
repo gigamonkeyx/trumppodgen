@@ -5,14 +5,18 @@ const cors = require('cors');
 const Database = require('better-sqlite3');
 const cheerio = require('cheerio');
 const path = require('path');
+const { spawn } = require('child_process');
+const fs = require('fs').promises;
 const { DataSourceManager } = require('./src/dataSources');
 const { Analytics } = require('./src/analytics');
+const { AuthManager } = require('./src/auth');
 
 const app = express();
 const port = 3000;
 const db = new Database('archive.db');
 const dataSourceManager = new DataSourceManager(db);
 const analytics = new Analytics(db);
+const auth = new AuthManager(db);
 
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
@@ -159,7 +163,7 @@ app.get('/api/analytics', async (req, res) => {
 });
 
 // Analytics cleanup endpoint (admin only in production)
-app.post('/api/analytics/cleanup', async (req, res) => {
+app.post('/api/analytics/cleanup', auth.requireAuth.bind(auth), auth.requireAdmin.bind(auth), async (req, res) => {
   try {
     const { days = 30 } = req.body;
     const deletedCount = analytics.cleanup(days);
@@ -167,6 +171,75 @@ app.post('/api/analytics/cleanup', async (req, res) => {
       message: 'Cleanup completed',
       deletedRecords: deletedCount
     });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Authentication endpoints
+app.post('/api/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password required' });
+    }
+
+    const result = await auth.login(username, password);
+
+    if (result.success) {
+      analytics.trackEvent('user_login', { username }, req);
+      res.json(result);
+    } else {
+      res.status(401).json(result);
+    }
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/logout', auth.requireAuth.bind(auth), async (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    const result = auth.logout(token);
+
+    analytics.trackEvent('user_logout', { username: req.user.username }, req);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.get('/api/profile', auth.requireAuth.bind(auth), async (req, res) => {
+  try {
+    const apiKeys = auth.getUserApiKeys(req.user.id);
+    res.json({
+      user: req.user,
+      apiKeys: Object.keys(apiKeys), // Don't send actual keys, just which ones are configured
+      hasOpenRouter: !!apiKeys.openrouter,
+      hasYouTube: !!apiKeys.youtube
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/profile/api-keys', auth.requireAuth.bind(auth), async (req, res) => {
+  try {
+    const { openrouter, youtube } = req.body;
+    const apiKeys = {};
+
+    if (openrouter) apiKeys.openrouter = openrouter;
+    if (youtube) apiKeys.youtube = youtube;
+
+    const result = auth.updateUserApiKeys(req.user.id, apiKeys);
+
+    if (result.success) {
+      analytics.trackEvent('api_keys_updated', { userId: req.user.id }, req);
+      res.json({ message: 'API keys updated successfully' });
+    } else {
+      res.status(500).json(result);
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -563,10 +636,10 @@ Format as a structured script with speaker cues and timing notes.`;
   return await callOpenRouter(finalPrompt, model);
 }
 
-// API: Generate audio (enhanced TTS)
+// API: Generate audio with Tortoise-TTS
 app.post('/api/generate-audio', async (req, res) => {
   try {
-    const { workflowId, voice = 'default', speed = 1.0 } = req.body;
+    const { workflowId, voice = 'trump', preset = 'fast', useLocal = true } = req.body;
 
     if (!workflowId) {
       return res.status(400).json({ error: 'workflowId is required' });
@@ -577,36 +650,145 @@ app.post('/api/generate-audio', async (req, res) => {
       return res.status(400).json({ error: 'Workflow not found or no script available' });
     }
 
-    // For now, return a mock audio URL
-    // In production, this would integrate with TTS services like:
-    // - OpenAI TTS API
-    // - Google Cloud Text-to-Speech
-    // - Amazon Polly
-    // - ElevenLabs
+    let audioUrl, audioResult;
 
-    const audioUrl = `audio/${workflowId}.mp3`;
+    if (useLocal) {
+      // Use local Tortoise-TTS
+      try {
+        audioResult = await generateLocalTTS(workflow.script, voice, preset, workflowId);
+        audioUrl = audioResult.output_file;
+      } catch (ttsError) {
+        console.error('Local TTS failed, falling back to mock:', ttsError.message);
+        audioUrl = `audio/${workflowId}.wav`;
+        audioResult = {
+          success: false,
+          error: ttsError.message,
+          fallback: true
+        };
+      }
+    } else {
+      // Fallback to mock for now
+      audioUrl = `audio/${workflowId}.wav`;
+      audioResult = {
+        success: true,
+        mock: true,
+        message: 'Mock audio generation - configure TTS for real audio'
+      };
+    }
 
     // Update workflow with audio URL
     db.prepare('UPDATE workflows SET audio_url = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
       .run(audioUrl, 'audio_generated', workflowId);
 
+    // Track analytics
+    analytics.trackEvent('audio_generated', {
+      workflowId,
+      voice,
+      preset,
+      useLocal,
+      success: audioResult.success,
+      duration: audioResult.duration || null
+    }, req);
+
     res.json({
       workflowId,
       audioUrl,
       status: 'audio_generated',
-      message: 'Audio generation completed (mock)',
-      note: 'This is a mock response. In production, this would generate actual audio.'
+      message: audioResult.success ? 'Audio generated successfully' : 'Audio generation failed, using fallback',
+      ttsResult: audioResult,
+      voice,
+      preset
     });
 
   } catch (error) {
+    console.error('Audio generation error:', error);
+    analytics.trackError(error, req, '/api/generate-audio');
     res.status(500).json({ error: error.message });
   }
 });
 
-// API: Finalize podcast (RSS and publishing)
-app.post('/api/finalize', (req, res) => {
+// Helper function for local TTS generation
+async function generateLocalTTS(script, voice, preset, workflowId) {
+  return new Promise((resolve, reject) => {
+    const outputFile = `${workflowId}.wav`;
+    const pythonScript = path.join(__dirname, 'src', 'tts.py');
+
+    // Prepare script text (remove timestamps and formatting for TTS)
+    const cleanScript = cleanScriptForTTS(script);
+
+    const args = [
+      pythonScript,
+      '--text', cleanScript,
+      '--voice', voice,
+      '--preset', preset,
+      '--output', outputFile,
+      '--output-dir', './audio'
+    ];
+
+    console.log('Starting TTS generation with Tortoise-TTS...');
+    const pythonProcess = spawn('python', args, {
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+      console.log('TTS Progress:', data.toString().trim());
+    });
+
+    pythonProcess.on('close', (code) => {
+      if (code === 0) {
+        try {
+          const result = JSON.parse(stdout);
+          resolve(result);
+        } catch (parseError) {
+          reject(new Error(`TTS completed but failed to parse result: ${parseError.message}`));
+        }
+      } else {
+        reject(new Error(`TTS process failed with code ${code}: ${stderr}`));
+      }
+    });
+
+    pythonProcess.on('error', (error) => {
+      reject(new Error(`Failed to start TTS process: ${error.message}`));
+    });
+
+    // Set timeout for long-running TTS
+    setTimeout(() => {
+      pythonProcess.kill();
+      reject(new Error('TTS generation timeout (5 minutes)'));
+    }, 5 * 60 * 1000);
+  });
+}
+
+// Helper function to clean script for TTS
+function cleanScriptForTTS(script) {
+  if (!script) return '';
+
+  return script
+    // Remove timestamps
+    .replace(/\[\d{1,2}:\d{2}\]/g, '')
+    // Remove speaker cues
+    .replace(/^(HOST|NARRATOR|SPEAKER):/gm, '')
+    // Remove stage directions
+    .replace(/\[.*?\]/g, '')
+    // Clean up extra whitespace
+    .replace(/\s+/g, ' ')
+    .trim()
+    // Limit length for TTS (max 5000 chars for reasonable generation time)
+    .substring(0, 5000);
+}
+
+// API: Finalize podcast with local RSS generation
+app.post('/api/finalize', async (req, res) => {
   try {
-    const { workflowId, title, description } = req.body;
+    const { workflowId, title, description, localBundle = true } = req.body;
 
     if (!workflowId) {
       return res.status(400).json({ error: 'workflowId is required' });
@@ -620,26 +802,146 @@ app.post('/api/finalize', (req, res) => {
     const podcastTitle = title || `Trump Podcast - ${new Date().toLocaleDateString()}`;
     const podcastDescription = description || 'AI-generated podcast from Trump speeches and rallies';
 
-    const rss = generateRss(podcastTitle, podcastDescription, workflow.script, workflow.audio_url);
-    const rssUrl = `rss/${workflowId}.xml`;
+    let rssContent, rssUrl, bundlePath;
+
+    if (localBundle) {
+      // Generate self-contained local bundle
+      const bundleResult = await generateLocalBundle(workflowId, podcastTitle, podcastDescription, workflow);
+      rssContent = bundleResult.rssContent;
+      rssUrl = bundleResult.rssUrl;
+      bundlePath = bundleResult.bundlePath;
+    } else {
+      // Generate standard RSS
+      rssContent = generateRss(podcastTitle, podcastDescription, workflow.script, workflow.audio_url);
+      rssUrl = `rss/${workflowId}.xml`;
+
+      // Save RSS file
+      await fs.writeFile(rssUrl, rssContent);
+    }
 
     // Update workflow as finalized
     db.prepare('UPDATE workflows SET rss_url = ?, status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
       .run(rssUrl, 'finalized', workflowId);
 
+    // Track analytics
+    analytics.trackEvent('podcast_finalized', {
+      workflowId,
+      localBundle,
+      title: podcastTitle
+    }, req);
+
     res.json({
       workflowId,
       rssUrl,
+      bundlePath,
       podcastTitle,
       podcastDescription,
       status: 'finalized',
-      message: 'Podcast finalized successfully'
+      localBundle,
+      message: localBundle ? 'Local podcast bundle created successfully' : 'Podcast finalized successfully'
     });
 
   } catch (error) {
+    console.error('Finalization error:', error);
+    analytics.trackError(error, req, '/api/finalize');
     res.status(500).json({ error: error.message });
   }
 });
+
+// Helper function to generate local self-contained bundle
+async function generateLocalBundle(workflowId, title, description, workflow) {
+  const bundleDir = `bundles/${workflowId}`;
+  const audioDir = `${bundleDir}/audio`;
+  const rssPath = `${bundleDir}/podcast.xml`;
+
+  // Create bundle directories
+  await fs.mkdir(bundleDir, { recursive: true });
+  await fs.mkdir(audioDir, { recursive: true });
+
+  // Copy audio file to bundle (if it exists)
+  let localAudioPath = null;
+  if (workflow.audio_url && await fileExists(workflow.audio_url)) {
+    const audioFileName = path.basename(workflow.audio_url);
+    localAudioPath = `audio/${audioFileName}`;
+    await fs.copyFile(workflow.audio_url, `${bundleDir}/${localAudioPath}`);
+  }
+
+  // Generate RSS with relative paths
+  const rssContent = generateLocalRss(title, description, workflow.script, localAudioPath);
+
+  // Save RSS file
+  await fs.writeFile(rssPath, rssContent);
+
+  // Create bundle info file
+  const bundleInfo = {
+    workflowId,
+    title,
+    description,
+    createdAt: new Date().toISOString(),
+    audioFile: localAudioPath,
+    rssFile: 'podcast.xml',
+    scriptLength: workflow.script?.length || 0,
+    instructions: {
+      usage: 'Open podcast.xml in a podcast app or RSS reader',
+      audio: localAudioPath ? 'Audio file included in bundle' : 'Audio file not available',
+      sharing: 'This bundle is self-contained and can be shared as a folder'
+    }
+  };
+
+  await fs.writeFile(`${bundleDir}/README.json`, JSON.stringify(bundleInfo, null, 2));
+
+  return {
+    rssContent,
+    rssUrl: rssPath,
+    bundlePath: bundleDir
+  };
+}
+
+// Helper function to check if file exists
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// Generate RSS with local/relative paths
+function generateLocalRss(title, description, script, audioPath) {
+  const now = new Date();
+  const pubDate = now.toUTCString();
+  const guid = `trump-podcast-local-${Date.now()}`;
+
+  const audioEnclosure = audioPath ?
+    `<enclosure url="${audioPath}" type="audio/wav" length="0"/>` :
+    '<!-- Audio file not available -->';
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <channel>
+    <title>Trump Podcast Generator - Local Bundle</title>
+    <description>Self-contained AI-generated podcast from Trump speeches</description>
+    <link>file://./</link>
+    <language>en-us</language>
+    <pubDate>${pubDate}</pubDate>
+    <lastBuildDate>${pubDate}</lastBuildDate>
+    <itunes:author>Trump Podcast Generator</itunes:author>
+    <itunes:category text="News &amp; Politics"/>
+    <itunes:explicit>false</itunes:explicit>
+
+    <item>
+      <title>${title}</title>
+      <description>${description}</description>
+      <pubDate>${pubDate}</pubDate>
+      <guid isPermaLink="false">${guid}</guid>
+      ${audioEnclosure}
+      <itunes:duration>10:00</itunes:duration>
+      <itunes:explicit>false</itunes:explicit>
+    </item>
+  </channel>
+</rss>`;
+}
 
 // Fetch and populate archive using new data source manager
 async function populateArchive() {
