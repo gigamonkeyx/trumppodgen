@@ -1,5 +1,13 @@
 name: CI/CD Pipeline
 # Updated with comprehensive error handling and mock mode integration
+#
+# Required Secrets:
+# - OPENROUTER_API_KEY: For live API testing (optional, uses mock mode if missing)
+#
+# Optional Secrets (for deployment):
+# - VERCEL_TOKEN: For Vercel deployment
+# - ORG_ID: Vercel organization ID
+# - PROJECT_ID: Vercel project ID
 
 on:
   push:
