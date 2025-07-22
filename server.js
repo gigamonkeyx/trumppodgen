@@ -245,6 +245,95 @@ app.post('/api/profile/api-keys', auth.requireAuth.bind(auth), async (req, res) 
   }
 });
 
+// API: Donation/Support endpoints
+app.get('/api/donate', async (req, res) => {
+  try {
+    const donationInfo = {
+      message: "Support Trump Podcast Generator Development",
+      description: "Help us maintain and improve this local podcast generation tool",
+      options: [
+        {
+          platform: "Patreon",
+          url: process.env.PATREON_URL || "https://patreon.com/trumppodgen",
+          description: "Monthly support for ongoing development",
+          suggested_amounts: ["$5", "$10", "$25"]
+        },
+        {
+          platform: "Ko-fi",
+          url: process.env.KOFI_URL || "https://ko-fi.com/trumppodgen",
+          description: "One-time support",
+          suggested_amounts: ["$3", "$5", "$10"]
+        },
+        {
+          platform: "GitHub Sponsors",
+          url: process.env.GITHUB_SPONSORS_URL || "https://github.com/sponsors/gigamonkeyx",
+          description: "Support open source development",
+          suggested_amounts: ["$5", "$15", "$50"]
+        }
+      ],
+      features: {
+        free: [
+          "Basic podcast generation",
+          "Up to 5 speeches per workflow",
+          "Standard TTS voices"
+        ],
+        supporter: [
+          "Unlimited batch processing",
+          "Custom voice cloning",
+          "Priority support",
+          "Early access to new features"
+        ]
+      }
+    };
+
+    res.json(donationInfo);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+app.post('/api/donate/track', async (req, res) => {
+  try {
+    const { platform, amount, userId } = req.body;
+
+    // Track donation analytics (don't store sensitive payment info)
+    analytics.trackEvent('donation_clicked', {
+      platform,
+      amount: amount || 'unknown',
+      userId: userId || 'anonymous'
+    }, req);
+
+    res.json({
+      message: 'Thank you for your support!',
+      tracked: true
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// API: Check supporter status (placeholder for future premium features)
+app.get('/api/supporter-status', auth.requireAuth.bind(auth), async (req, res) => {
+  try {
+    // In future, this would check actual payment status
+    // For now, return basic info
+    const supporterStatus = {
+      isSupporter: false, // Would check actual payment status
+      tier: 'free',
+      features: {
+        maxBatchSize: 10,
+        customVoices: false,
+        prioritySupport: false
+      },
+      upgradeUrl: process.env.PATREON_URL || "https://patreon.com/trumppodgen"
+    };
+
+    res.json(supporterStatus);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Proxy middleware for external fetches (with rate limiting)
 app.use('/proxy', async (req, res) => {
   try {
@@ -472,10 +561,10 @@ app.get('/api/workflow/:id', (req, res) => {
   }
 });
 
-// API: Generate script with batch processing
+// API: Generate script with AI swarm and batch processing
 app.post('/api/generate-script', async (req, res) => {
   try {
-    const { workflowId, model, style = 'professional', duration = 10, batchSize = 10 } = req.body;
+    const { workflowId, model, style = 'professional', duration = 10, batchSize = 10, useSwarm = false } = req.body;
 
     if (!workflowId || !model) {
       return res.status(400).json({ error: 'workflowId and model are required' });
@@ -495,9 +584,12 @@ app.post('/api/generate-script', async (req, res) => {
       return res.status(400).json({ error: 'No speeches found for this workflow' });
     }
 
-    // Handle large batches (10+ speeches) with intelligent processing
+    // Handle script generation with AI swarm or batch processing
     let script;
-    if (speeches.length > batchSize) {
+    if (useSwarm && speeches.length >= 3) {
+      console.log(`Using AI swarm for enhanced script generation with ${speeches.length} speeches`);
+      script = await generateSwarmScript(speeches, model, style, duration);
+    } else if (speeches.length > batchSize) {
       console.log(`Processing large batch: ${speeches.length} speeches, using batch processing`);
       script = await generateBatchScript(speeches, model, style, duration, batchSize);
     } else {
@@ -636,10 +728,143 @@ Format as a structured script with speaker cues and timing notes.`;
   return await callOpenRouter(finalPrompt, model);
 }
 
+// Helper function for AI swarm script generation
+async function generateSwarmScript(speeches, primaryModel, style, duration) {
+  console.log('Initializing AI swarm with 3 specialized agents...');
+
+  // Define specialized agents
+  const agents = [
+    {
+      name: 'Content Analyst',
+      model: primaryModel,
+      role: 'Analyze speech content and extract key themes, quotes, and policy points'
+    },
+    {
+      name: 'Narrative Designer',
+      model: primaryModel, // Could use different model in production
+      role: 'Structure the narrative flow and create engaging transitions'
+    },
+    {
+      name: 'Audio Producer',
+      model: primaryModel, // Could use different model in production
+      role: 'Optimize content for audio presentation with timing and pacing'
+    }
+  ];
+
+  try {
+    // Phase 1: Parallel analysis by each agent
+    const analysisPromises = agents.map(async (agent, index) => {
+      const speechSubset = speeches.slice(
+        Math.floor(index * speeches.length / 3),
+        Math.floor((index + 1) * speeches.length / 3)
+      );
+
+      const prompt = `You are the ${agent.name} agent. ${agent.role}.
+
+Analyze these Trump speeches:
+${speechSubset.map((speech, i) => `
+Speech ${i + 1}: ${speech.title}
+Date: ${speech.date}
+Location: ${speech.rally_location || 'Unknown'}
+Excerpt: ${speech.transcript ? speech.transcript.substring(0, 400) + '...' : 'No transcript available'}
+`).join('\n')}
+
+Provide your specialized analysis focusing on your role. Be concise but thorough.`;
+
+      const analysis = await callOpenRouter(prompt, agent.model);
+      return {
+        agent: agent.name,
+        analysis: analysis,
+        speechCount: speechSubset.length
+      };
+    });
+
+    const analyses = await Promise.all(analysisPromises);
+    console.log('AI swarm analysis phase completed');
+
+    // Phase 2: Synthesis by primary agent
+    const synthesisPrompt = `You are the Lead Producer synthesizing insights from 3 AI agents to create a ${duration}-minute ${style} podcast script.
+
+Agent Reports:
+${analyses.map(result => `
+${result.agent} (${result.speechCount} speeches analyzed):
+${result.analysis}
+`).join('\n')}
+
+Create a comprehensive ${duration}-minute podcast script that:
+- Incorporates insights from all three agents
+- Maintains a ${style} tone throughout
+- Includes proper audio timing and transitions
+- Features the most compelling content identified by the swarm
+- Has clear introduction, body, and conclusion
+- Includes timestamps for major sections
+
+Format as a structured script with speaker cues and timing notes.`;
+
+    const finalScript = await callOpenRouter(synthesisPrompt, primaryModel);
+    console.log('AI swarm synthesis completed');
+
+    return finalScript;
+
+  } catch (error) {
+    console.error('AI swarm generation failed, falling back to single model:', error.message);
+    // Fallback to single script generation
+    return await generateSingleScript(speeches, primaryModel, style, duration);
+  }
+}
+
+// API: Upload voice samples for cloning
+app.post('/api/voice-clone', auth.requireAuth.bind(auth), async (req, res) => {
+  try {
+    const { voiceName, description = 'Custom voice clone' } = req.body;
+
+    if (!voiceName) {
+      return res.status(400).json({ error: 'Voice name is required' });
+    }
+
+    // Handle file uploads (in production, use multer or similar)
+    // For now, expect audio file paths in request
+    const { audioFiles } = req.body;
+
+    if (!audioFiles || !Array.isArray(audioFiles) || audioFiles.length === 0) {
+      return res.status(400).json({ error: 'Audio files are required for voice cloning' });
+    }
+
+    const result = await createVoiceClone(voiceName, audioFiles, description);
+
+    if (result.success) {
+      analytics.trackEvent('voice_clone_created', {
+        voiceName,
+        sampleCount: result.sample_count,
+        userId: req.user.id
+      }, req);
+
+      res.json(result);
+    } else {
+      res.status(500).json(result);
+    }
+
+  } catch (error) {
+    console.error('Voice cloning error:', error);
+    analytics.trackError(error, req, '/api/voice-clone');
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// API: List available voices
+app.get('/api/voices', async (req, res) => {
+  try {
+    const result = await listAvailableVoices();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // API: Generate audio with Tortoise-TTS
 app.post('/api/generate-audio', async (req, res) => {
   try {
-    const { workflowId, voice = 'trump', preset = 'fast', useLocal = true } = req.body;
+    const { workflowId, voice = 'trump', preset = 'fast', useLocal = true, customVoicePath = null } = req.body;
 
     if (!workflowId) {
       return res.status(400).json({ error: 'workflowId is required' });
@@ -653,9 +878,9 @@ app.post('/api/generate-audio', async (req, res) => {
     let audioUrl, audioResult;
 
     if (useLocal) {
-      // Use local Tortoise-TTS
+      // Use local Tortoise-TTS with optional custom voice
       try {
-        audioResult = await generateLocalTTS(workflow.script, voice, preset, workflowId);
+        audioResult = await generateLocalTTS(workflow.script, voice, preset, workflowId, customVoicePath);
         audioUrl = audioResult.output_file;
       } catch (ttsError) {
         console.error('Local TTS failed, falling back to mock:', ttsError.message);
@@ -707,8 +932,8 @@ app.post('/api/generate-audio', async (req, res) => {
   }
 });
 
-// Helper function for local TTS generation
-async function generateLocalTTS(script, voice, preset, workflowId) {
+// Helper function for local TTS generation with voice cloning support
+async function generateLocalTTS(script, voice, preset, workflowId, customVoicePath = null) {
   return new Promise((resolve, reject) => {
     const outputFile = `${workflowId}.wav`;
     const pythonScript = path.join(__dirname, 'src', 'tts.py');
@@ -724,6 +949,11 @@ async function generateLocalTTS(script, voice, preset, workflowId) {
       '--output', outputFile,
       '--output-dir', './audio'
     ];
+
+    // Add custom voice path if provided
+    if (customVoicePath) {
+      args.push('--custom-voice', customVoicePath);
+    }
 
     console.log('Starting TTS generation with Tortoise-TTS...');
     const pythonProcess = spawn('python', args, {
@@ -783,6 +1013,111 @@ function cleanScriptForTTS(script) {
     .trim()
     // Limit length for TTS (max 5000 chars for reasonable generation time)
     .substring(0, 5000);
+}
+
+// Helper function to create voice clone
+async function createVoiceClone(voiceName, audioFiles, description) {
+  return new Promise((resolve, reject) => {
+    const pythonScript = path.join(__dirname, 'src', 'tts.py');
+
+    const args = [
+      pythonScript,
+      '--create-voice', voiceName,
+      '--description', description,
+      '--audio-files', audioFiles.join(',')
+    ];
+
+    console.log('Creating voice clone...');
+    const pythonProcess = spawn('python', args, {
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+      console.log('Voice Clone Progress:', data.toString().trim());
+    });
+
+    pythonProcess.on('close', (code) => {
+      if (code === 0) {
+        try {
+          const result = JSON.parse(stdout);
+          resolve(result);
+        } catch (parseError) {
+          reject(new Error(`Voice clone completed but failed to parse result: ${parseError.message}`));
+        }
+      } else {
+        reject(new Error(`Voice clone process failed with code ${code}: ${stderr}`));
+      }
+    });
+
+    pythonProcess.on('error', (error) => {
+      reject(new Error(`Failed to start voice clone process: ${error.message}`));
+    });
+  });
+}
+
+// Helper function to list available voices
+async function listAvailableVoices() {
+  return new Promise((resolve, reject) => {
+    const pythonScript = path.join(__dirname, 'src', 'tts.py');
+
+    const args = [pythonScript, '--list-voices'];
+
+    const pythonProcess = spawn('python', args, {
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    pythonProcess.on('close', (code) => {
+      if (code === 0) {
+        try {
+          const result = JSON.parse(stdout);
+          resolve(result);
+        } catch (parseError) {
+          // Fallback to basic voice list
+          resolve({
+            success: true,
+            voices: ['trump', 'default'],
+            custom_voices: [],
+            message: 'Basic voice list (TTS system may not be fully configured)'
+          });
+        }
+      } else {
+        resolve({
+          success: false,
+          error: `Voice list process failed: ${stderr}`,
+          voices: ['trump', 'default'],
+          custom_voices: []
+        });
+      }
+    });
+
+    pythonProcess.on('error', (error) => {
+      resolve({
+        success: false,
+        error: `Failed to start voice list process: ${error.message}`,
+        voices: ['trump', 'default'],
+        custom_voices: []
+      });
+    });
+  });
 }
 
 // API: Finalize podcast with local RSS generation

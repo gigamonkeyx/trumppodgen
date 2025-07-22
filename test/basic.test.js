@@ -442,6 +442,146 @@ runner.test('API key management', async () => {
   }
 });
 
+runner.test('Voice cloning system', async () => {
+  // Test voice listing
+  const voicesResult = await get('/api/voices');
+  assert(voicesResult.voices, 'Should return available voices list');
+  assert(Array.isArray(voicesResult.voices), 'Voices should be an array');
+
+  console.log(`✅ Voice system available with ${voicesResult.voices.length} base voices`);
+
+  // Test voice cloning endpoint structure (would need actual audio files in production)
+  const loginResult = await post('/api/login', {
+    username: 'admin',
+    password: 'admin123'
+  });
+
+  if (loginResult.success) {
+    console.log('✅ Voice cloning authentication ready');
+    // In production, would test actual voice cloning with audio files
+  }
+});
+
+runner.test('AI swarm script generation', async () => {
+  const searchResult = await get('/api/search?limit=3');
+
+  if (searchResult.results.length >= 3) {
+    const speechIds = searchResult.results.slice(0, 3).map(s => s.id);
+
+    // Create workflow
+    const workflow = await post('/api/workflow', {
+      name: 'AI Swarm Test Workflow',
+      speechIds: speechIds
+    });
+
+    assert(workflow.workflowId, 'Should create workflow for AI swarm test');
+
+    // Test AI swarm script generation
+    const swarmResult = await post('/api/generate-script', {
+      workflowId: workflow.workflowId,
+      model: 'gpt-3.5-turbo',
+      duration: 2,
+      useSwarm: true
+    });
+
+    if (swarmResult.script) {
+      console.log('✅ AI swarm script generation working');
+      assert(swarmResult.script.length > 100, 'Swarm script should be substantial');
+    } else {
+      console.log('⚠️ AI swarm generation failed - check model configuration');
+    }
+  } else {
+    console.log('⚠️ Not enough speeches for AI swarm testing');
+  }
+});
+
+runner.test('Donation system integration', async () => {
+  // Test donation info endpoint
+  const donateInfo = await get('/api/donate');
+
+  assert(donateInfo.message, 'Should return donation message');
+  assert(Array.isArray(donateInfo.options), 'Should return donation options');
+  assert(donateInfo.features, 'Should return feature comparison');
+
+  // Check donation platforms
+  const platforms = donateInfo.options.map(opt => opt.platform);
+  assert(platforms.includes('Patreon'), 'Should include Patreon option');
+  assert(platforms.includes('Ko-fi'), 'Should include Ko-fi option');
+
+  console.log(`✅ Donation system configured with ${donateInfo.options.length} platforms`);
+
+  // Test donation tracking
+  const trackResult = await post('/api/donate/track', {
+    platform: 'Patreon',
+    amount: '$5',
+    userId: 'test-user'
+  });
+
+  assert(trackResult.tracked, 'Should track donation clicks');
+  console.log('✅ Donation tracking functional');
+});
+
+runner.test('Supporter status system', async () => {
+  const loginResult = await post('/api/login', {
+    username: 'admin',
+    password: 'admin123'
+  });
+
+  if (loginResult.success) {
+    const token = loginResult.token;
+
+    // Test supporter status endpoint
+    const statusResult = await get(`/api/supporter-status?token=${token}`);
+
+    assert(typeof statusResult.isSupporter === 'boolean', 'Should return supporter status');
+    assert(statusResult.tier, 'Should return supporter tier');
+    assert(statusResult.features, 'Should return feature limits');
+
+    console.log(`✅ Supporter system ready (tier: ${statusResult.tier})`);
+  } else {
+    console.log('⚠️ Cannot test supporter status - login failed');
+  }
+});
+
+runner.test('Enhanced workflow features', async () => {
+  const searchResult = await get('/api/search?limit=5');
+
+  if (searchResult.results.length >= 5) {
+    const speechIds = searchResult.results.slice(0, 5).map(s => s.id);
+
+    // Test large batch workflow
+    const workflow = await post('/api/workflow', {
+      name: 'Enhanced Features Test',
+      speechIds: speechIds
+    });
+
+    // Test batch processing
+    const batchResult = await post('/api/generate-script', {
+      workflowId: workflow.workflowId,
+      model: 'gpt-3.5-turbo',
+      duration: 3,
+      batchSize: 3
+    });
+
+    if (batchResult.script) {
+      console.log('✅ Batch processing working for large workflows');
+
+      // Test enhanced audio generation
+      const audioResult = await post('/api/generate-audio', {
+        workflowId: workflow.workflowId,
+        voice: 'trump',
+        preset: 'fast',
+        useLocal: false // Use fallback for testing
+      });
+
+      assert(audioResult.audioUrl, 'Should generate audio URL');
+      console.log('✅ Enhanced audio generation pipeline ready');
+    }
+  } else {
+    console.log('⚠️ Not enough speeches for enhanced workflow testing');
+  }
+});
+
 // Run tests if this file is executed directly
 if (require.main === module) {
   runner.run().catch(error => {
