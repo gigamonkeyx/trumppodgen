@@ -71,7 +71,7 @@ class GrokBehavior:
     def parallel_processing(agents: List['SwarmAgent'], task: Dict[str, Any]) -> Dict[str, Any]:
         """Parallel task processing like Grok's multi-perspective approach"""
         perspectives = []
-        
+
         for agent in agents:
             if agent.can_contribute_to(task):
                 perspective = agent.generate_perspective(task)
@@ -81,11 +81,22 @@ class GrokBehavior:
                     'perspective': perspective,
                     'confidence': agent.confidence_score
                 })
-        
+
+        # Ensure at least one perspective exists for synthesis
+        if not perspectives and agents:
+            # If no agent can contribute, use the first agent as fallback
+            fallback_agent = agents[0]
+            perspectives.append({
+                'agent_id': fallback_agent.agent_id,
+                'role': fallback_agent.role,
+                'perspective': f"Fallback analysis for {task.get('type', 'unknown')} task",
+                'confidence': 0.3  # Low confidence for fallback
+            })
+
         return {
             'task_id': task.get('id', str(uuid.uuid4())),
             'perspectives': perspectives,
-            'synthesis_ready': len(perspectives) >= 2,
+            'synthesis_ready': len(perspectives) >= 1,  # Changed from 2 to 1 to allow single perspective
             'timestamp': datetime.now().isoformat()
         }
     
@@ -113,11 +124,11 @@ class GrokBehavior:
         """Synthesize multiple perspectives like Grok's integration"""
         if not perspectives:
             return {'synthesis': 'No perspectives available', 'confidence': 0.0}
-        
+
         # Weight perspectives by confidence
         weighted_content = []
         total_weight = 0
-        
+
         for p in perspectives:
             weight = p.get('confidence', 0.5)
             weighted_content.append({
@@ -126,15 +137,20 @@ class GrokBehavior:
                 'source': p.get('agent_id', 'unknown')
             })
             total_weight += weight
-        
-        # Create synthesis
+
+        # Create synthesis with safe division
+        # Ensure we don't divide by zero even if all perspectives have 0 confidence
+        average_confidence = total_weight / len(perspectives) if len(perspectives) > 0 else 0.0
+
         synthesis = {
             'synthesis': f"Integrated analysis from {len(perspectives)} agents",
-            'confidence': total_weight / len(perspectives) if perspectives else 0.0,
+            'confidence': average_confidence,
             'sources': [p.get('agent_id') for p in perspectives],
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().isoformat(),
+            'total_weight': total_weight,
+            'perspective_count': len(perspectives)
         }
-        
+
         return synthesis
 
 class SwarmAgent:
@@ -222,39 +238,93 @@ class SwarmAgent:
         return joint_result
 
 class RIPERSwarmSimulation:
-    """RIPER-enhanced swarm simulation with dynamic agent spawning"""
-    
-    def __init__(self, initial_agent_count: int = 5):
+    """RIPER-enhanced swarm simulation with dynamic agent spawning and Heavy mode"""
+
+    def __init__(self, initial_agent_count: int = 8, heavy_mode: bool = True):
         self.agents: List[SwarmAgent] = []
         self.task_queue: List[Dict[str, Any]] = []
         self.completed_tasks: List[Dict[str, Any]] = []
+        self.heavy_mode = heavy_mode
         self.simulation_metrics = {
             'total_tasks': 0,
             'successful_collaborations': 0,
             'mode_violations': 0,
-            'avg_task_completion_time': 0.0
+            'avg_task_completion_time': 0.0,
+            'heavy_mode_active': heavy_mode,
+            'parallel_processing_events': 0,
+            'gpu_utilization': 0.0
         }
-        
-        # Initialize agents
+
+        # Initialize agents with Heavy mode capabilities
         self._spawn_initial_agents(initial_agent_count)
     
     def _spawn_initial_agents(self, count: int):
-        """Spawn initial agent population"""
-        agent_templates = [
-            ('script_writer', ['writing', 'storytelling', 'structure']),
-            ('fact_checker', ['research', 'verification', 'analysis']),
-            ('voice_specialist', ['audio', 'voice_cloning', 'production']),
-            ('content_curator', ['curation', 'selection', 'organization']),
-            ('quality_assessor', ['evaluation', 'quality_control', 'feedback'])
-        ]
-        
+        """Spawn initial agent population with Heavy mode specialization"""
+        if self.heavy_mode:
+            agent_templates = [
+                ('ingestion_specialist', ['codebase_analysis', 'file_parsing', 'structure_mapping']),
+                ('code_analyzer', ['syntax_analysis', 'pattern_recognition', 'dependency_tracking']),
+                ('workflow_simulator', ['process_modeling', 'execution_paths', 'scenario_testing']),
+                ('optimization_agent', ['performance_tuning', 'resource_management', 'efficiency']),
+                ('synthesis_coordinator', ['result_aggregation', 'coherence_validation', 'integration']),
+                ('validation_expert', ['quality_assurance', 'error_detection', 'compliance_checking']),
+                ('tts_specialist', ['audio_processing', 'voice_synthesis', 'bark_integration']),
+                ('gpu_monitor', ['resource_monitoring', 'cuda_optimization', 'memory_management'])
+            ]
+        else:
+            agent_templates = [
+                ('script_writer', ['writing', 'storytelling', 'structure']),
+                ('fact_checker', ['research', 'verification', 'analysis']),
+                ('voice_specialist', ['audio', 'voice_cloning', 'production']),
+                ('content_curator', ['curation', 'selection', 'organization']),
+                ('quality_assessor', ['evaluation', 'quality_control', 'feedback'])
+            ]
+
         for i in range(count):
             template = agent_templates[i % len(agent_templates)]
             agent_id = f"{template[0]}_{i+1}_{uuid.uuid4().hex[:8]}"
             agent = SwarmAgent(agent_id, template[0], template[1])
+            if self.heavy_mode:
+                agent.heavy_capabilities = self._assign_heavy_capabilities(template[0])
             self.agents.append(agent)
-            logger.info(f"Spawned agent: {agent_id} with role {template[0]}")
-    
+            logger.info(f"Spawned {'Heavy mode ' if self.heavy_mode else ''}agent: {agent_id} with role {template[0]}")
+
+    def _assign_heavy_capabilities(self, role: str) -> Dict[str, Any]:
+        """Assign Heavy mode specific capabilities to agents"""
+        heavy_caps = {
+            'ingestion_specialist': {
+                'max_file_size': '10MB',
+                'supported_formats': ['.js', '.py', '.json', '.md', '.yml'],
+                'parallel_processing': True,
+                'context_window': 4096
+            },
+            'code_analyzer': {
+                'ast_parsing': True,
+                'dependency_graph': True,
+                'complexity_analysis': True,
+                'pattern_matching': 'advanced'
+            },
+            'workflow_simulator': {
+                'execution_modeling': True,
+                'scenario_generation': True,
+                'path_optimization': True,
+                'bottleneck_detection': True
+            },
+            'tts_specialist': {
+                'bark_integration': True,
+                'voice_cloning': True,
+                'audio_optimization': True,
+                'gpu_acceleration': True
+            },
+            'gpu_monitor': {
+                'vram_tracking': True,
+                'cuda_optimization': True,
+                'thermal_monitoring': True,
+                'performance_metrics': True
+            }
+        }
+        return heavy_caps.get(role, {'basic_capabilities': True})
+
     def spawn_specialized_agent(self, task_requirements: List[str]) -> SwarmAgent:
         """Dynamically spawn agent for specific task requirements"""
         # Determine best role based on requirements
