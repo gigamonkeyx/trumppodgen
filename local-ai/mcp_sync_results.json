@@ -1,0 +1,18 @@
+{
+  "tools_discovered": 4,
+  "refresh_results": {
+    "status": "skipped",
+    "reason": "too_recent"
+  },
+  "status": {
+    "protocol_version": "2.5",
+    "last_refresh": "2025-07-23T18:34:35.079185",
+    "time_since_refresh_seconds": 0.0,
+    "next_refresh_due": "2025-07-23T18:34:45.079185",
+    "refresh_needed": false,
+    "auto_discovery_enabled": true,
+    "fitness_threshold": 0.7,
+    "tools_registered": 4,
+    "cache_entries": 0
+  }
+}

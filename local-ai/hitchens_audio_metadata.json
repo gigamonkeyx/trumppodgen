@@ -1,0 +1,37 @@
+{
+  "required_samples": [
+    {
+      "source": "YouTube - Hitchens vs Craig Debate",
+      "duration_target": "60 seconds",
+      "quality": "high (broadcast)",
+      "content_type": "debate argument",
+      "voice_characteristics": "authoritative, measured"
+    },
+    {
+      "source": "YouTube - Hitchens Interview",
+      "duration_target": "45 seconds",
+      "quality": "high (studio)",
+      "content_type": "conversational",
+      "voice_characteristics": "relaxed, witty"
+    },
+    {
+      "source": "YouTube - Hitchens Lecture",
+      "duration_target": "90 seconds",
+      "quality": "medium (auditorium)",
+      "content_type": "presentation",
+      "voice_characteristics": "formal, intellectual"
+    }
+  ],
+  "processing_requirements": {
+    "format": "WAV, 22kHz, mono",
+    "noise_reduction": "required",
+    "normalization": "required",
+    "segmentation": "30-60 second clips"
+  },
+  "gpu_requirements": {
+    "model": "RTX 3080",
+    "vram_needed": "8GB",
+    "training_time": "2-4 hours",
+    "framework": "Bark/Tortoise-TTS"
+  }
+}
