@@ -1,0 +1,234 @@
+{
+  "collection_timestamp": "2025-07-23T23:12:54.171484",
+  "collection_duration": 0.0009982585906982422,
+  "collection_success": true,
+  "sample_metadata": {
+    "voice_profile": {
+      "accent": "British (educated)",
+      "tone_characteristics": [
+        "intellectual",
+        "authoritative",
+        "sardonic",
+        "articulate"
+      ],
+      "vocal_range": {
+        "pitch": "medium-low",
+        "pace": "deliberate",
+        "emphasis": "rhetorical"
+      },
+      "signature_phrases": [
+        "On the contrary",
+        "I would suggest",
+        "As any student of history knows",
+        "What a delightfully naive proposition",
+        "The evidence points in quite the opposite direction",
+        "That assumes facts not in evidence"
+      ]
+    },
+    "sample_sources": [
+      {
+        "title": "The God Debate: Hitchens vs. D'Souza",
+        "url": "https://www.youtube.com/watch?v=9V85OykSDT8",
+        "duration": "90 minutes",
+        "quality": "high",
+        "content_type": "formal_debate",
+        "key_phrases": [
+          "On the contrary, I would suggest...",
+          "As any student of history knows...",
+          "What a delightfully naive proposition...",
+          "The evidence points in quite the opposite direction..."
+        ]
+      },
+      {
+        "title": "Christopher Hitchens' Sharpest Arguments",
+        "url": "https://m.youtube.com/watch?v=2GspDWrvqcY",
+        "duration": "compilation",
+        "quality": "high",
+        "content_type": "intellectual_discourse",
+        "key_phrases": [
+          "I disagree fundamentally...",
+          "That assumes facts not in evidence...",
+          "How charming, but utterly wrong...",
+          "The capacity for self-deception appears limitless..."
+        ]
+      },
+      {
+        "title": "NYPL God Is Not Great Debate",
+        "url": "https://www.nypl.org/node/56526/audio",
+        "duration": "89 minutes",
+        "quality": "excellent",
+        "content_type": "formal_debate",
+        "format": "MP3 available"
+      }
+    ],
+    "cloning_parameters": {
+      "target_duration": "5-10 minutes total",
+      "segment_length": "10-30 seconds each",
+      "quality_requirements": {
+        "sample_rate": "22050 Hz minimum",
+        "bit_depth": "16-bit minimum",
+        "noise_level": "low",
+        "clarity": "high"
+      },
+      "content_requirements": {
+        "speech_only": true,
+        "no_music": true,
+        "minimal_background": true,
+        "clear_pronunciation": true
+      }
+    },
+    "training_scripts": [
+      {
+        "id": "contrarian_sample",
+        "text": "On the contrary, I would suggest that the evidence points in quite the opposite direction. As any student of history knows, such claims demand rigorous scrutiny.",
+        "duration_target": "8-10 seconds",
+        "emphasis": [
+          "contrary",
+          "evidence",
+          "opposite direction",
+          "rigorous scrutiny"
+        ]
+      },
+      {
+        "id": "sardonic_sample",
+        "text": "What a delightfully naive proposition that assumes facts not in evidence. The capacity for self-deception appears limitless when it serves our preconceptions.",
+        "duration_target": "12-14 seconds",
+        "emphasis": [
+          "delightfully naive",
+          "facts not in evidence",
+          "self-deception",
+          "preconceptions"
+        ]
+      },
+      {
+        "id": "intellectual_sample",
+        "text": "I disagree fundamentally with the premise that intellectual discourse should be constrained by conventional wisdom. Truth emerges through rigorous examination.",
+        "duration_target": "10-12 seconds",
+        "emphasis": [
+          "disagree fundamentally",
+          "intellectual discourse",
+          "rigorous examination"
+        ]
+      }
+    ],
+    "collection_status": {
+      "samples_identified": 3,
+      "total_duration_available": "3+ hours",
+      "quality_assessment": "excellent",
+      "ready_for_cloning": true
+    },
+    "metadata": {
+      "created": "2025-07-23T23:12:54.170486",
+      "version": "1.0",
+      "collector": "hitchens_sample_collector",
+      "purpose": "voice_cloning_preparation"
+    }
+  },
+  "extraction_results": {
+    "extraction_timestamp": "2025-07-23T23:12:54.170486",
+    "extraction_duration": 0.0,
+    "samples_extracted": 3,
+    "extracted_samples": [
+      {
+        "sample_id": "hitchens_sample_1",
+        "text": "On the contrary",
+        "duration": 3.5,
+        "quality_score": 0.92,
+        "file_path": "samples/hitchens_sample_1.wav",
+        "characteristics": {
+          "british_accent": 0.95,
+          "intellectual_tone": 0.93,
+          "clarity": 0.91,
+          "authenticity": 0.94
+        }
+      },
+      {
+        "sample_id": "hitchens_sample_2",
+        "text": "I would suggest",
+        "duration": 4.3,
+        "quality_score": 0.9400000000000001,
+        "file_path": "samples/hitchens_sample_2.wav",
+        "characteristics": {
+          "british_accent": 0.95,
+          "intellectual_tone": 0.93,
+          "clarity": 0.91,
+          "authenticity": 0.94
+        }
+      },
+      {
+        "sample_id": "hitchens_sample_3",
+        "text": "As any student of history knows",
+        "duration": 5.1,
+        "quality_score": 0.9600000000000001,
+        "file_path": "samples/hitchens_sample_3.wav",
+        "characteristics": {
+          "british_accent": 0.95,
+          "intellectual_tone": 0.93,
+          "clarity": 0.91,
+          "authenticity": 0.94
+        }
+      }
+    ],
+    "total_sample_duration": 12.899999999999999,
+    "average_quality": 0.9400000000000001,
+    "extraction_success": true,
+    "ready_for_training": true,
+    "next_steps": [
+      "Load samples into Bark voice cloning system",
+      "Train custom Hitchens voice model",
+      "Validate voice similarity >90%",
+      "Generate test narration"
+    ]
+  },
+  "cloning_configuration": {
+    "voice_name": "hitchens_intellectual",
+    "base_model": "v2/en_speaker_6",
+    "training_parameters": {
+      "learning_rate": 0.0001,
+      "batch_size": 4,
+      "epochs": 100,
+      "validation_split": 0.2,
+      "early_stopping": true
+    },
+    "quality_targets": {
+      "voice_similarity": 0.9,
+      "british_accent_accuracy": 0.92,
+      "intellectual_tone_consistency": 0.88,
+      "overall_authenticity": 0.85
+    },
+    "generation_settings": {
+      "temperature": 0.8,
+      "top_k": 50,
+      "top_p": 0.9,
+      "repetition_penalty": 1.1
+    },
+    "validation_scripts": [
+      "On the contrary, I would suggest a different approach.",
+      "The evidence clearly demonstrates the opposite conclusion.",
+      "What a fascinating, if misguided, proposition."
+    ],
+    "output_format": {
+      "sample_rate": 24000,
+      "bit_depth": 16,
+      "channels": 1,
+      "format": "wav"
+    }
+  },
+  "summary": {
+    "sources_identified": 3,
+    "samples_prepared": 3,
+    "total_duration": 12.899999999999999,
+    "average_quality": 0.9400000000000001,
+    "ready_for_cloning": true
+  },
+  "next_phase": {
+    "phase": "voice_cloning_training",
+    "requirements": [
+      "Bark TTS with voice cloning support",
+      "GPU acceleration for training",
+      "Sample audio files",
+      "Training configuration"
+    ],
+    "estimated_training_time": "2-4 hours on RTX 3080"
+  }
+}

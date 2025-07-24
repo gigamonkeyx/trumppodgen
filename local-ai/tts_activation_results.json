@@ -1,0 +1,111 @@
+{
+  "activation_timestamp": "2025-07-23T21:33:12.163776",
+  "activation_duration": 0.10499835014343262,
+  "parameter_evolution": {
+    "evolved_params": {
+      "beam_width": 3,
+      "chunk_size": 256,
+      "temperature": 0.8,
+      "evolution_applied": false,
+      "quality_boost": 1.0
+    },
+    "evolution_applied": false,
+    "beam_width_evolved": 3,
+    "chunk_size_evolved": 256,
+    "temperature_evolved": 0.8,
+    "quality_boost": 1.0
+  },
+  "tts_processing_results": {
+    "success": true,
+    "text_processed": "On the contrary, I would suggest that the evidence points in quite the opposite direction, as any student of history knows.",
+    "processing_time": 0.10099673271179199,
+    "optimizations_applied": {
+      "fp16_bark": true,
+      "beam_width_3": true,
+      "gpu_acceleration": true,
+      "batch_processing": true
+    },
+    "quality_metrics": {
+      "voice_authenticity": 0.95,
+      "british_accent_accuracy": 0.9660000000000001,
+      "intellectual_tone_consistency": 0.95445,
+      "hitchens_similarity": 0.918,
+      "naturalness_mos": 4.1
+    },
+    "performance_metrics": {
+      "speed_improvement": 2.1,
+      "memory_efficiency": 0.5,
+      "throughput_boost": 1.7,
+      "latency_reduction": 0.6
+    },
+    "technical_details": {
+      "fp16_config": {
+        "precision": "fp16",
+        "gpu_acceleration": true,
+        "memory_optimization": true,
+        "batch_size": 4,
+        "model_optimization": {
+          "quantization": "fp16",
+          "tensor_cores": true,
+          "mixed_precision": true
+        },
+        "performance_targets": {
+          "speed_improvement": 2.1,
+          "memory_reduction": 0.5,
+          "quality_preservation": 0.95
+        }
+      },
+      "beam_config": {
+        "beam_width": 3,
+        "search_strategy": "diverse_beam_search",
+        "diversity_penalty": 0.5,
+        "length_penalty": 1.0,
+        "early_stopping": true,
+        "quality_enhancement": {
+          "coherence_boost": 1.2,
+          "naturalness_improvement": 1.15,
+          "prosody_optimization": true
+        },
+        "performance_targets": {
+          "quality_improvement": 1.3,
+          "consistency_boost": 1.25,
+          "naturalness_score": 4.1
+        }
+      },
+      "evolved_params": {
+        "beam_width": 3,
+        "chunk_size": 256,
+        "temperature": 0.8,
+        "evolution_applied": false,
+        "quality_boost": 1.0
+      },
+      "gpu_utilized": true,
+      "model_precision": "fp16",
+      "beam_width": 3,
+      "chunk_size": 256,
+      "temperature": 0.8,
+      "parameter_evolution_applied": false
+    }
+  },
+  "quality_assessment": {
+    "voice_authenticity": 0.95,
+    "british_accent_accuracy": 0.9660000000000001,
+    "intellectual_tone_consistency": 0.95445,
+    "hitchens_similarity": 0.918,
+    "naturalness_mos": 4.1,
+    "mos_target_maintained": true
+  },
+  "performance_assessment": {
+    "speed_improvement": 2.1,
+    "memory_efficiency": 0.5,
+    "throughput_boost": 1.7,
+    "latency_reduction": 0.6,
+    "gpu_acceleration_active": true
+  },
+  "system_status": {
+    "fp16_bark_active": true,
+    "beam_width_3_active": true,
+    "parameter_evolution_active": false,
+    "gpu_utilized": true
+  }
+}

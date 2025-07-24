@@ -6,9 +6,9 @@
   },
   "status": {
     "protocol_version": "2.5",
-    "last_refresh": "2025-07-23T18:34:35.079185",
-    "time_since_refresh_seconds": 0.0,
-    "next_refresh_due": "2025-07-23T18:34:45.079185",
+    "last_refresh": "2025-07-24T00:45:29.260798",
+    "time_since_refresh_seconds": 0.001,
+    "next_refresh_due": "2025-07-24T00:45:39.260798",
     "refresh_needed": false,
     "auto_discovery_enabled": true,
     "fitness_threshold": 0.7,

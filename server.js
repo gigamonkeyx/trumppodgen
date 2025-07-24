@@ -1895,22 +1895,11 @@ app.post('/api/generate-audio', async (req, res) => {
         audioResult = await generateLocalTTS(workflow.script, voice, preset, workflowId, customVoicePath);
         audioUrl = audioResult.output_file;
       } catch (ttsError) {
-        console.error('Local TTS failed, falling back to mock:', ttsError.message);
-        audioUrl = `audio/${workflowId}.wav`;
-        audioResult = {
-          success: false,
-          error: ttsError.message,
-          fallback: true
-        };
+        console.error('Local TTS failed:', ttsError.message);
+        throw new Error(`TTS generation failed: ${ttsError.message}`);
       }
     } else {
-      // Fallback to mock for now
-      audioUrl = `audio/${workflowId}.wav`;
-      audioResult = {
-        success: true,
-        mock: true,
-        message: 'Mock audio generation - configure TTS for real audio'
-      };
+      throw new Error('TTS not configured - set USE_LOCAL_TTS=true and configure Tortoise-TTS');
     }
 
     // Update workflow with audio URL
@@ -1944,30 +1933,39 @@ app.post('/api/generate-audio', async (req, res) => {
   }
 });
 
-// Helper function for local TTS generation with voice cloning support
+// Helper function for local TTS generation with Bark TTS integration
 async function generateLocalTTS(script, voice, preset, workflowId, customVoicePath = null) {
   return new Promise((resolve, reject) => {
     const outputFile = `${workflowId}.wav`;
-    const pythonScript = path.join(__dirname, 'src', 'tts.py');
+    const pythonScript = path.join(__dirname, 'src', 'bark_tts_server.py');
 
     // Prepare script text (remove timestamps and formatting for TTS)
     const cleanScript = cleanScriptForTTS(script);
 
+    // Map voice names to Bark presets
+    const voiceMapping = {
+      'trump': 'v2/en_speaker_6',
+      'hitchens': 'v2/en_speaker_6',  // British-style speaker
+      'default': 'v2/en_speaker_6'
+    };
+
+    const barkVoice = voiceMapping[voice] || 'v2/en_speaker_6';
+
     const args = [
       pythonScript,
       '--text', cleanScript,
-      '--voice', voice,
+      '--voice', barkVoice,
       '--preset', preset,
       '--output', outputFile,
       '--output-dir', './audio'
     ];
 
-    // Add custom voice path if provided
+    // Add custom voice path if provided (future Bark feature)
     if (customVoicePath) {
       args.push('--custom-voice', customVoicePath);
     }
 
-    console.log('Starting TTS generation with Tortoise-TTS...');
+    console.log('Starting TTS generation with Bark TTS...');
     const pythonProcess = spawn('python', args, {
       stdio: ['pipe', 'pipe', 'pipe']
     });
@@ -1981,7 +1979,7 @@ async function generateLocalTTS(script, voice, preset, workflowId, customVoicePa
 
     pythonProcess.stderr.on('data', (data) => {
       stderr += data.toString();
-      console.log('TTS Progress:', data.toString().trim());
+      console.log('Bark TTS Progress:', data.toString().trim());
     });
 
     pythonProcess.on('close', (code) => {

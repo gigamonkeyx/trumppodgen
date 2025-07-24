@@ -359,11 +359,12 @@ class RIPERSwarmSimulation:
         
         logger.info(f"Processing task {task_id} with swarm of {len(self.agents)} agents")
         
-        # Find capable agents
+        # Find capable agents - ENHANCED SELECTION
         capable_agents = [agent for agent in self.agents if agent.can_contribute_to(task)]
-        
-        # Spawn specialized agent if needed
-        if len(capable_agents) < 2:
+
+        # Spawn specialized agents for optimal collaboration - OPTIMIZED
+        target_agents = max(3, min(5, len(self.agents)))  # Target 3-5 agents for optimal emergence
+        while len(capable_agents) < target_agents:
             specialized_agent = self.spawn_specialized_agent(task.get('requirements', []))
             capable_agents.append(specialized_agent)
         

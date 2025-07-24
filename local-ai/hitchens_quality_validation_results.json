@@ -1,0 +1,54 @@
+{
+  "validation_timestamp": "2025-07-23T21:48:30.755067",
+  "validation_duration": 0.0,
+  "overall_success": false,
+  "overall_quality_score": 0.95596842,
+  "mos_validation": {
+    "overall_mos": 3.907656,
+    "components": {
+      "naturalness": 1.4349999999999998,
+      "authenticity": 0.95,
+      "accent_accuracy": 0.7882560000000001,
+      "similarity": 0.7344
+    },
+    "target_met": false,
+    "quality_grade": "GOOD",
+    "improvement_needed": 0.19234399999999985,
+    "validation_status": "FAIL"
+  },
+  "wer_validation": {
+    "estimated_wer": 0.0629106,
+    "wer_percentage": 6.29106,
+    "word_accuracy": 0.9370894,
+    "total_words": 5,
+    "estimated_errors": 0,
+    "target_met": true,
+    "improvement_needed": 0,
+    "validation_status": "PASS"
+  },
+  "likeness_validation": {
+    "overall_likeness": 0.94692,
+    "components": {
+      "voice_similarity": 0.3672,
+      "accent_match": 0.24633000000000002,
+      "tone_consistency": 0.19089,
+      "overall_authenticity": 0.1425
+    },
+    "target_met": false,
+    "likeness_grade": "EXCELLENT",
+    "improvement_needed": 0.0030799999999999716,
+    "validation_status": "FAIL"
+  },
+  "quality_summary": {
+    "mos_score": 3.907656,
+    "wer_percentage": 6.29106,
+    "likeness_score": 0.94692,
+    "all_targets_met": false,
+    "quality_grade": "EXCELLENT"
+  },
+  "improvement_recommendations": [
+    "Improve MOS score by 0.19 points",
+    "Enhance voice likeness by 0.003 points"
+  ],
+  "evolution_needed": true
+}

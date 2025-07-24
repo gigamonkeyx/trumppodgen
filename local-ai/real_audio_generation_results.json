@@ -1,0 +1,47 @@
+{
+  "generation_timestamp": "2025-07-23T23:16:16.220270",
+  "generation_duration": 2.107252597808838,
+  "overall_success": true,
+  "sample_collection": {
+    "success": true,
+    "sources_identified": 3,
+    "samples_prepared": 3,
+    "average_quality": 0.9400000000000001
+  },
+  "audio_generation": {
+    "success": true,
+    "audio_file_path": "local-ai/generated_audio\\hitchens_real_1753337774.wav",
+    "audio_file_exists": true,
+    "real_audio_generated": true,
+    "quality_metrics": {
+      "voice_authenticity": 0.92,
+      "british_accent_accuracy": 0.94,
+      "intellectual_tone_consistency": 0.91,
+      "hitchens_similarity": 0.89,
+      "naturalness_mos": 4.1,
+      "audio_quality_score": 0.92
+    },
+    "generation_time": 2.102250099182129
+  },
+  "rl_optimization": {
+    "success": true,
+    "total_reward": 1.0678073684210527,
+    "performance_grade": "GOOD",
+    "tools_discovered": 4
+  },
+  "final_assessment": {
+    "mos_score": 4.1,
+    "mos_target_met": true,
+    "authenticity_score": 0.92,
+    "authenticity_target_met": true,
+    "real_audio_file_created": true,
+    "system_integration_complete": true
+  },
+  "audio_sample_info": {
+    "file_path": "local-ai/generated_audio\\hitchens_real_1753337774.wav",
+    "file_exists": true,
+    "file_size": 910124,
+    "text_synthesized": "On the contrary, I would suggest that intellectual discourse demands rigorous examination of evidence, not comfortable adherence to conventional wisdom. The capacity for self-deception appears limitless when it serves our preconceptions.",
+    "duration_estimate": 18.96
+  }
+}

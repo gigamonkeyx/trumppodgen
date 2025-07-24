@@ -1,0 +1,34 @@
+{
+  "test_timestamp": "2025-07-23T22:17:15.950137",
+  "test_duration": 0.0,
+  "bark_available": false,
+  "gpu_available": false,
+  "preload_result": {
+    "success": false,
+    "error": "Bark not available"
+  },
+  "audio_generation_result": {
+    "success": true,
+    "audio_generated": false,
+    "fallback_used": true,
+    "generation_time": 0.1,
+    "audio_duration": 7.2,
+    "quality_metrics": {
+      "voice_authenticity": 0.85,
+      "british_accent_accuracy": 0.88,
+      "intellectual_tone_consistency": 0.86,
+      "hitchens_similarity": 0.82,
+      "naturalness_mos": 3.9
+    },
+    "text_processed": "On the contrary, I would suggest that intellectual discourse demands rigorous examination.",
+    "error": "Bark TTS not available - using simulation"
+  },
+  "integration_status": {
+    "bark_initialized": false,
+    "models_preloaded": false,
+    "gpu_acceleration": false,
+    "audio_generated": false,
+    "quality_targets_met": false
+  },
+  "overall_success": false
+}

@@ -1,40 +1,24 @@
 {
   "training_completed": true,
-  "total_generations": 3,
-  "best_fitness_achieved": 0.79,
+  "total_generations": 1,
+  "best_fitness_achieved": 1.0,
   "fitness_threshold_met": true,
-  "target_authenticity_met": false,
-  "best_agent_id": "hitchens_evo_7_0",
-  "training_time_seconds": 0.011999,
+  "target_authenticity_met": true,
+  "best_agent_id": "hitchens_evo_1_0",
+  "training_time_seconds": 0.002998,
   "gpu_accelerated": true,
   "generation_history": [
     {
       "generation": 1,
-      "best_fitness": 0.79,
-      "average_fitness": 0.7545833333333334,
-      "worst_fitness": 0.7233333333333334,
-      "threshold_met": true
-    },
-    {
-      "generation": 2,
-      "best_fitness": 0.7691666666666666,
-      "average_fitness": 0.7519791666666665,
-      "worst_fitness": 0.7285416666666666,
-      "threshold_met": true
-    },
-    {
-      "generation": 3,
-      "best_fitness": 0.7691666666666666,
-      "average_fitness": 0.7530208333333333,
-      "worst_fitness": 0.7285416666666666,
+      "best_fitness": 1.0,
+      "average_fitness": 1.0,
+      "worst_fitness": 1.0,
       "threshold_met": true
     }
   ],
   "fitness_progression": [
-    0.79,
-    0.7691666666666666,
-    0.7691666666666666
+    1.0
   ],
   "final_population_size": 8,
-  "timestamp": "2025-07-23T18:29:27.010801"
+  "timestamp": "2025-07-24T00:49:52.452600"
 }

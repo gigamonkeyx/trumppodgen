@@ -1,0 +1,58 @@
+{
+  "optimization_timestamp": "2025-07-23T21:52:43.525200",
+  "cycle_duration": 0.0009989738464355469,
+  "rl_reward_results": {
+    "total_reward": 0.9762864178228498,
+    "components": {
+      "mos_reward": 0.3812347317073171,
+      "wer_reward": 0.2735447,
+      "likeness_reward": 0.24918947368421054,
+      "quality_reward": 0.0,
+      "improvement_bonus": 0.0
+    },
+    "baseline_comparison": {
+      "mos_improvement": -0.0005994884910486818,
+      "wer_improvement": 9.541088580566299e-05,
+      "likeness_improvement": -8.4477296726472e-05,
+      "overall_improvement": -1.0
+    },
+    "performance_grade": "FAIR",
+    "optimization_success": false
+  },
+  "mcp_sync_results": {
+    "refresh_status": "skipped",
+    "tools_discovered": 4,
+    "refresh_time": 0.0
+  },
+  "optimization_metrics": {
+    "current_quality_score": 0.0,
+    "baseline_quality_score": 0.956,
+    "improvement_achieved": -1.0,
+    "target_improvement_met": false,
+    "optimization_success": false
+  },
+  "quality_breakdown": {
+    "mos_performance": {
+      "current": 3.907656,
+      "baseline": 3.91,
+      "improvement": -0.0005994884910486818
+    },
+    "wer_performance": {
+      "current": 6.29106,
+      "baseline": 6.3,
+      "improvement": 9.541088580566299e-05
+    },
+    "likeness_performance": {
+      "current": 0.94692,
+      "baseline": 0.947,
+      "improvement": -8.4477296726472e-05
+    }
+  },
+  "system_status": {
+    "rl_system_active": true,
+    "mcp_sync_operational": true,
+    "quality_threshold_maintained": false,
+    "tools_available": 4
+  },
+  "overall_optimization_success": false
+}
