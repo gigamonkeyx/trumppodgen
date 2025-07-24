@@ -1,0 +1,465 @@
+{
+  "benchmark_timestamp": "2025-07-23T20:12:40.538030",
+  "benchmark_duration": 0.3970353603363037,
+  "target_metrics": {
+    "target_episodes_per_hour": 171,
+    "target_seconds_per_episode": 21.05263157894737,
+    "target_e2e_seconds": 37,
+    "current_baseline_e2e": 10.0,
+    "required_throughput_improvement": 0.475,
+    "required_latency_improvement": 0.2702702702702703,
+    "combined_performance_target": 0.37263513513513513
+  },
+  "throughput_results": {
+    "processing_time": 0.017000198364257812,
+    "episodes_processed": 8,
+    "episodes_per_second": 470.5827443060698,
+    "episodes_per_hour": 1694097.8795018513,
+    "target_episodes_per_hour": 171,
+    "throughput_target_met": true,
+    "results": [
+      {
+        "id": "throughput_test_0",
+        "original_task": {
+          "id": "throughput_test_0",
+          "type": "debate",
+          "topic": "performance test topic 0",
+          "requirements": [
+            "contrarian_analysis",
+            "intellectual_discourse"
+          ]
+        },
+        "result": {
+          "synthesis": "Integrated analysis from 5 agents",
+          "confidence": 1.0510000000000002,
+          "sources": [
+            "hitchens_debater_1_bad39ba9",
+            "hitchens_essayist_2_a9467524",
+            "hitchens_critic_3_539ed3fe",
+            "hitchens_contrarian_4_6a6787c7",
+            "hitchens_intellectual_5_0d344e6c"
+          ],
+          "timestamp": "2025-07-23T20:12:40.144992",
+          "total_weight": 5.255000000000001,
+          "perspective_count": 5
+        },
+        "participating_agents": [
+          "hitchens_debater_1_bad39ba9",
+          "hitchens_essayist_2_a9467524",
+          "hitchens_critic_3_539ed3fe",
+          "hitchens_contrarian_4_6a6787c7",
+          "hitchens_intellectual_5_0d344e6c"
+        ],
+        "persona_agents_used": 5,
+        "persona_fitness": 0.72,
+        "completion_time": 0.001,
+        "timestamp": "2025-07-23T20:12:40.144992"
+      },
+      {
+        "id": "throughput_test_1",
+        "original_task": {
+          "id": "throughput_test_1",
+          "type": "debate",
+          "topic": "performance test topic 1",
+          "requirements": [
+            "contrarian_analysis",
+            "intellectual_discourse"
+          ]
+        },
+        "result": {
+          "synthesis": "Integrated analysis from 5 agents",
+          "confidence": 0.982,
+          "sources": [
+            "hitchens_debater_1_bad39ba9",
+            "hitchens_essayist_2_a9467524",
+            "hitchens_critic_3_539ed3fe",
+            "hitchens_contrarian_4_6a6787c7",
+            "hitchens_intellectual_5_0d344e6c"
+          ],
+          "timestamp": "2025-07-23T20:12:40.146994",
+          "total_weight": 4.91,
+          "perspective_count": 5
+        },
+        "participating_agents": [
+          "hitchens_debater_1_bad39ba9",
+          "hitchens_essayist_2_a9467524",
+          "hitchens_critic_3_539ed3fe",
+          "hitchens_contrarian_4_6a6787c7",
+          "hitchens_intellectual_5_0d344e6c"
+        ],
+        "persona_agents_used": 5,
+        "persona_fitness": 0.72,
+        "completion_time": 0.001002,
+        "timestamp": "2025-07-23T20:12:40.146994"
+      },
+      {
+        "id": "throughput_test_2",
+        "original_task": {
+          "id": "throughput_test_2",
+          "type": "debate",
+          "topic": "performance test topic 2",
+          "requirements": [
+            "contrarian_analysis",
+            "intellectual_discourse"
+          ]
+        },
+        "result": {
+          "synthesis": "Integrated analysis from 5 agents",
+          "confidence": 0.978,
+          "sources": [
+            "hitchens_debater_1_bad39ba9",
+            "hitchens_essayist_2_a9467524",
+            "hitchens_critic_3_539ed3fe",
+            "hitchens_contrarian_4_6a6787c7",
+            "hitchens_intellectual_5_0d344e6c"
+          ],
+          "timestamp": "2025-07-23T20:12:40.148994",
+          "total_weight": 4.89,
+          "perspective_count": 5
+        },
+        "participating_agents": [
+          "hitchens_debater_1_bad39ba9",
+          "hitchens_essayist_2_a9467524",
+          "hitchens_critic_3_539ed3fe",
+          "hitchens_contrarian_4_6a6787c7",
+          "hitchens_intellectual_5_0d344e6c"
+        ],
+        "persona_agents_used": 5,
+        "persona_fitness": 0.72,
+        "completion_time": 0.002,
+        "timestamp": "2025-07-23T20:12:40.148994"
+      },
+      {
+        "id": "throughput_test_3",
+        "original_task": {
+          "id": "throughput_test_3",
+          "type": "debate",
+          "topic": "performance test topic 3",
+          "requirements": [
+            "contrarian_analysis",
+            "intellectual_discourse"
+          ]
+        },
+        "result": {
+          "synthesis": "Integrated analysis from 5 agents",
+          "confidence": 0.9480000000000001,
+          "sources": [
+            "hitchens_debater_1_bad39ba9",
+            "hitchens_essayist_2_a9467524",
+            "hitchens_critic_3_539ed3fe",
+            "hitchens_contrarian_4_6a6787c7",
+            "hitchens_intellectual_5_0d344e6c"
+          ],
+          "timestamp": "2025-07-23T20:12:40.149993",
+          "total_weight": 4.74,
+          "perspective_count": 5
+        },
+        "participating_agents": [
+          "hitchens_debater_1_bad39ba9",
+          "hitchens_essayist_2_a9467524",
+          "hitchens_critic_3_539ed3fe",
+          "hitchens_contrarian_4_6a6787c7",
+          "hitchens_intellectual_5_0d344e6c"
+        ],
+        "persona_agents_used": 5,
+        "persona_fitness": 0.72,
+        "completion_time": 0.000999,
+        "timestamp": "2025-07-23T20:12:40.149993"
+      },
+      {
+        "id": "throughput_test_4",
+        "original_task": {
+          "id": "throughput_test_4",
+          "type": "debate",
+          "topic": "performance test topic 4",
+          "requirements": [
+            "contrarian_analysis",
+            "intellectual_discourse"
+          ]
+        },
+        "result": {
+          "synthesis": "Integrated analysis from 5 agents",
+          "confidence": 1.026,
+          "sources": [
+            "hitchens_debater_1_bad39ba9",
+            "hitchens_essayist_2_a9467524",
+            "hitchens_critic_3_539ed3fe",
+            "hitchens_contrarian_4_6a6787c7",
+            "hitchens_intellectual_5_0d344e6c"
+          ],
+          "timestamp": "2025-07-23T20:12:40.151995",
+          "total_weight": 5.13,
+          "perspective_count": 5
+        },
+        "participating_agents": [
+          "hitchens_debater_1_bad39ba9",
+          "hitchens_essayist_2_a9467524",
+          "hitchens_critic_3_539ed3fe",
+          "hitchens_contrarian_4_6a6787c7",
+          "hitchens_intellectual_5_0d344e6c"
+        ],
+        "persona_agents_used": 5,
+        "persona_fitness": 0.72,
+        "completion_time": 0.001003,
+        "timestamp": "2025-07-23T20:12:40.151995"
+      },
+      {
+        "id": "throughput_test_5",
+        "original_task": {
+          "id": "throughput_test_5",
+          "type": "debate",
+          "topic": "performance test topic 5",
+          "requirements": [
+            "contrarian_analysis",
+            "intellectual_discourse"
+          ]
+        },
+        "result": {
+          "synthesis": "Integrated analysis from 5 agents",
+          "confidence": 1.013,
+          "sources": [
+            "hitchens_debater_1_bad39ba9",
+            "hitchens_essayist_2_a9467524",
+            "hitchens_critic_3_539ed3fe",
+            "hitchens_contrarian_4_6a6787c7",
+            "hitchens_intellectual_5_0d344e6c"
+          ],
+          "timestamp": "2025-07-23T20:12:40.153993",
+          "total_weight": 5.0649999999999995,
+          "perspective_count": 5
+        },
+        "participating_agents": [
+          "hitchens_debater_1_bad39ba9",
+          "hitchens_essayist_2_a9467524",
+          "hitchens_critic_3_539ed3fe",
+          "hitchens_contrarian_4_6a6787c7",
+          "hitchens_intellectual_5_0d344e6c"
+        ],
+        "persona_agents_used": 5,
+        "persona_fitness": 0.72,
+        "completion_time": 0.000999,
+        "timestamp": "2025-07-23T20:12:40.153993"
+      },
+      {
+        "id": "throughput_test_6",
+        "original_task": {
+          "id": "throughput_test_6",
+          "type": "debate",
+          "topic": "performance test topic 6",
+          "requirements": [
+            "contrarian_analysis",
+            "intellectual_discourse"
+          ]
+        },
+        "result": {
+          "synthesis": "Integrated analysis from 5 agents",
+          "confidence": 1.042,
+          "sources": [
+            "hitchens_debater_1_bad39ba9",
+            "hitchens_essayist_2_a9467524",
+            "hitchens_critic_3_539ed3fe",
+            "hitchens_contrarian_4_6a6787c7",
+            "hitchens_intellectual_5_0d344e6c"
+          ],
+          "timestamp": "2025-07-23T20:12:40.154996",
+          "total_weight": 5.21,
+          "perspective_count": 5
+        },
+        "participating_agents": [
+          "hitchens_debater_1_bad39ba9",
+          "hitchens_essayist_2_a9467524",
+          "hitchens_critic_3_539ed3fe",
+          "hitchens_contrarian_4_6a6787c7",
+          "hitchens_intellectual_5_0d344e6c"
+        ],
+        "persona_agents_used": 5,
+        "persona_fitness": 0.72,
+        "completion_time": 0.001003,
+        "timestamp": "2025-07-23T20:12:40.155994"
+      },
+      {
+        "id": "throughput_test_7",
+        "original_task": {
+          "id": "throughput_test_7",
+          "type": "debate",
+          "topic": "performance test topic 7",
+          "requirements": [
+            "contrarian_analysis",
+            "intellectual_discourse"
+          ]
+        },
+        "result": {
+          "synthesis": "Integrated analysis from 5 agents",
+          "confidence": 1.012,
+          "sources": [
+            "hitchens_debater_1_bad39ba9",
+            "hitchens_essayist_2_a9467524",
+            "hitchens_critic_3_539ed3fe",
+            "hitchens_contrarian_4_6a6787c7",
+            "hitchens_intellectual_5_0d344e6c"
+          ],
+          "timestamp": "2025-07-23T20:12:40.156994",
+          "total_weight": 5.0600000000000005,
+          "perspective_count": 5
+        },
+        "participating_agents": [
+          "hitchens_debater_1_bad39ba9",
+          "hitchens_essayist_2_a9467524",
+          "hitchens_critic_3_539ed3fe",
+          "hitchens_contrarian_4_6a6787c7",
+          "hitchens_intellectual_5_0d344e6c"
+        ],
+        "persona_agents_used": 5,
+        "persona_fitness": 0.72,
+        "completion_time": 0.001,
+        "timestamp": "2025-07-23T20:12:40.156994"
+      }
+    ],
+    "optimization_settings": {
+      "parallel_processing": true,
+      "batch_optimization": true,
+      "batch_size": 4,
+      "pipeline_parallelism": true
+    }
+  },
+  "latency_results": {
+    "total_e2e_time": 0.37903380393981934,
+    "target_e2e_time": 37,
+    "latency_target_met": true,
+    "latency_improvement": 26.38287112140462,
+    "pipeline_stages": [
+      {
+        "stage": "persona_processing",
+        "time": 0.00099945068359375
+      },
+      {
+        "stage": "tts_processing",
+        "time": 0.1028597354888916
+      },
+      {
+        "stage": "final_assembly",
+        "time": 0.0
+      }
+    ],
+    "optimization_applied": {
+      "reduced_agent_count": true,
+      "parallel_tts": true,
+      "pipeline_optimization": true,
+      "memory_optimization": true,
+      "gpu_acceleration": true
+    },
+    "final_result": {
+      "persona_output": {
+        "id": "latency_test_e2e",
+        "original_task": {
+          "id": "latency_test_e2e",
+          "type": "essay",
+          "topic": "end-to-end latency optimization",
+          "requirements": [
+            "intellectual_coherence",
+            "performance_optimization"
+          ]
+        },
+        "result": {
+          "synthesis": "Integrated analysis from 1 agents",
+          "confidence": 0.36,
+          "sources": [
+            "hitchens_debater_1_6c2ff82b"
+          ],
+          "timestamp": "2025-07-23T20:12:40.434169",
+          "total_weight": 0.36,
+          "perspective_count": 1
+        },
+        "participating_agents": [
+          "hitchens_debater_1_6c2ff82b"
+        ],
+        "persona_agents_used": 1,
+        "persona_fitness": 0.72,
+        "completion_time": 0.0,
+        "timestamp": "2025-07-23T20:12:40.434169"
+      },
+      "tts_output": {
+        "success": true,
+        "text_processed": "Integrated analysis from 1 agents",
+        "processing_time": 0.1028597354888916,
+        "optimizations_applied": {
+          "fp16_bark": true,
+          "beam_width_3": true,
+          "gpu_acceleration": true,
+          "batch_processing": true
+        },
+        "quality_metrics": {
+          "voice_authenticity": 0.95,
+          "british_accent_accuracy": 0.9660000000000001,
+          "intellectual_tone_consistency": 0.9450000000000001,
+          "hitchens_similarity": 0.918,
+          "naturalness_mos": 4.1
+        },
+        "performance_metrics": {
+          "speed_improvement": 2.1,
+          "memory_efficiency": 0.5,
+          "throughput_boost": 1.7,
+          "latency_reduction": 0.6
+        },
+        "technical_details": {
+          "fp16_config": {
+            "precision": "fp16",
+            "gpu_acceleration": true,
+            "memory_optimization": true,
+            "batch_size": 4,
+            "model_optimization": {
+              "quantization": "fp16",
+              "tensor_cores": true,
+              "mixed_precision": true
+            },
+            "performance_targets": {
+              "speed_improvement": 2.1,
+              "memory_reduction": 0.5,
+              "quality_preservation": 0.95
+            }
+          },
+          "beam_config": {
+            "beam_width": 3,
+            "search_strategy": "diverse_beam_search",
+            "diversity_penalty": 0.5,
+            "length_penalty": 1.0,
+            "early_stopping": true,
+            "quality_enhancement": {
+              "coherence_boost": 1.2,
+              "naturalness_improvement": 1.15,
+              "prosody_optimization": true
+            },
+            "performance_targets": {
+              "quality_improvement": 1.3,
+              "consistency_boost": 1.25,
+              "naturalness_score": 4.1
+            }
+          },
+          "gpu_utilized": true,
+          "model_precision": "fp16",
+          "beam_width": 3
+        }
+      },
+      "combined_quality": 0.835
+    }
+  },
+  "performance_achievements": {
+    "throughput_target_met": true,
+    "latency_target_met": true,
+    "episodes_per_hour_achieved": 1694097.8795018513,
+    "e2e_seconds_achieved": 0.37903380393981934,
+    "combined_targets_met": true
+  },
+  "optimization_summary": {
+    "parallel_processing_enabled": true,
+    "batch_optimization_enabled": true,
+    "pipeline_parallelism_enabled": true,
+    "gpu_acceleration_enabled": true,
+    "memory_optimization_enabled": true
+  },
+  "performance_improvements": {
+    "throughput_improvement": 9907.00514328568,
+    "latency_improvement": 26.38287112140462,
+    "combined_improvement": 4966.694007203542
+  }
+}

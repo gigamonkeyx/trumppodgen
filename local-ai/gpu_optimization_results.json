@@ -1,0 +1,132 @@
+{
+  "benchmark_timestamp": "2025-07-23T20:16:14.062613",
+  "benchmark_duration": 2.187633991241455,
+  "gpu_info": {
+    "name": "NVIDIA GeForce RTX 3080",
+    "memory_total_mb": 10240,
+    "temperature": 52,
+    "utilization_gpu": 48,
+    "utilization_memory": 42,
+    "cuda_cores": 8704,
+    "tensor_cores": 272
+  },
+  "optimization_config": {
+    "memory_optimization": {
+      "enabled": true,
+      "strategies": [
+        "gradient_checkpointing",
+        "activation_recomputation",
+        "memory_efficient_attention",
+        "dynamic_loss_scaling"
+      ],
+      "memory_pool_size": "8GB",
+      "fragmentation_reduction": true
+    },
+    "compute_optimization": {
+      "tensor_cores_enabled": true,
+      "mixed_precision": true,
+      "cuda_graphs": true,
+      "kernel_fusion": true,
+      "async_execution": true
+    },
+    "batching_optimization": {
+      "dynamic_batching": true,
+      "batch_size_scaling": "auto",
+      "sequence_bucketing": true,
+      "padding_optimization": true
+    },
+    "thermal_management": {
+      "target_temperature": 75,
+      "thermal_throttling_prevention": true,
+      "fan_curve_optimization": true,
+      "power_limit_optimization": true
+    },
+    "performance_targets": {
+      "utilization_target": 0.9,
+      "memory_efficiency_target": 0.85,
+      "thermal_efficiency_target": 0.9,
+      "power_efficiency_target": 0.88
+    }
+  },
+  "performance_snapshots": [
+    {
+      "utilization_gpu": 43,
+      "utilization_memory": 40,
+      "temperature": 52,
+      "memory_used_mb": 3246,
+      "power_draw": 31.18,
+      "timestamp": "2025-07-23T20:16:12.331166"
+    },
+    {
+      "utilization_gpu": 43,
+      "utilization_memory": 40,
+      "temperature": 52,
+      "memory_used_mb": 3240,
+      "power_draw": 31.88,
+      "timestamp": "2025-07-23T20:16:12.789343"
+    },
+    {
+      "utilization_gpu": 23,
+      "utilization_memory": 21,
+      "temperature": 52,
+      "memory_used_mb": 3240,
+      "power_draw": 32.58,
+      "timestamp": "2025-07-23T20:16:13.228633"
+    },
+    {
+      "utilization_gpu": 23,
+      "utilization_memory": 21,
+      "temperature": 52,
+      "memory_used_mb": 3239,
+      "power_draw": 32.63,
+      "timestamp": "2025-07-23T20:16:13.666746"
+    },
+    {
+      "utilization_gpu": 47,
+      "utilization_memory": 41,
+      "temperature": 52,
+      "memory_used_mb": 3239,
+      "power_draw": 32.39,
+      "timestamp": "2025-07-23T20:16:14.062613"
+    }
+  ],
+  "efficiency_metrics": {
+    "overall_efficiency": 0.8577012631975865,
+    "utilization_improvement": 0.5507692307692307,
+    "memory_efficiency": 0.37233455882352945,
+    "thermal_efficiency": 1.65,
+    "target_efficiency_met": false,
+    "performance_metrics": {
+      "avg_gpu_utilization": 35.8,
+      "avg_memory_usage_mb": 3240.8,
+      "avg_temperature": 52.0,
+      "baseline_utilization": 65.0,
+      "target_efficiency": 90.0
+    },
+    "optimization_status": {
+      "memory_optimization": true,
+      "tensor_cores": true,
+      "mixed_precision": true,
+      "dynamic_batching": true,
+      "cuda_graphs": true
+    }
+  },
+  "gpt4o_optimizations": {
+    "memory_optimization_enabled": true,
+    "tensor_core_utilization": true,
+    "mixed_precision_training": true,
+    "dynamic_batching": true,
+    "cuda_graph_optimization": true,
+    "target_efficiency_achieved": false
+  },
+  "performance_summary": {
+    "avg_gpu_utilization": 35.8,
+    "avg_temperature": 52.0,
+    "efficiency_improvement": 0.8577012631975865,
+    "baseline_vs_optimized": {
+      "baseline_utilization": 65.0,
+      "optimized_utilization": 35.8,
+      "improvement_ratio": 0.5507692307692307
+    }
+  }
+}
